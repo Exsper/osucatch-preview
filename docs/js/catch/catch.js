@@ -135,9 +135,6 @@ function Catch(osu, mods) {
     this.palpableObjects = [];
     this.fullCatchObjects = [];
 
-    this.whiteDashes = [];
-    this.hyperDashes = [];
-
     for (var i = 0; i < this.HitObjects.length; i++) {
         let hitObject = this.HitObjects[i];
         if (hitObject instanceof Fruit) {
@@ -163,9 +160,13 @@ function Catch(osu, mods) {
                 if (item.type != "TinyDroplet") this.palpableObjects.push(item);
             });
         }
-        this.palpableObjects.sort((a, b) => a.time - b.time);
-        this.fullCatchObjects.sort((a, b) => a.time - b.time);
     }
+    this.palpableObjects.sort((a, b) => a.time - b.time);
+    this.fullCatchObjects.sort((a, b) => a.time - b.time);
+
+
+    this.whiteDashes = [];
+    this.hyperDashes = [];
 
     // hyperdash
     let lastDirection = 0;
