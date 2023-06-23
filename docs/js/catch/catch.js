@@ -134,6 +134,10 @@ function Catch(osu, mods) {
     // catch objects
     this.palpableObjects = [];
     this.fullCatchObjects = [];
+
+    this.whiteDashes = [];
+    this.hyperDashes = [];
+
     for (var i = 0; i < this.HitObjects.length; i++) {
         let hitObject = this.HitObjects[i];
         if (hitObject instanceof Fruit) {
@@ -161,34 +165,41 @@ function Catch(osu, mods) {
         }
         this.palpableObjects.sort((a, b) => a.time - b.time);
         this.fullCatchObjects.sort((a, b) => a.time - b.time);
-
-        // hyperdash
-        let lastDirection = 0;
-        let lastExcess = this.halfCatcherWidth;
-
-        for (let i = 0; i < this.palpableObjects.length - 1; i++) {
-            var currentObject = this.palpableObjects[i];
-            var nextObject = this.palpableObjects[i + 1];
-
-            currentObject.hyperDash = false;
-
-            let thisDirection = nextObject.x > currentObject.x ? 1 : -1;
-            let timeToNext = nextObject.time - currentObject.time - 1000 / 60 / 4; // 1/4th of a frame of grace time, taken from osu-stable
-            let distanceToNext = Math.abs(nextObject.x - currentObject.x) - (lastDirection == thisDirection ? lastExcess : this.halfCatcherWidth);
-            let distanceToHyper = timeToNext * this.BASE_DASH_SPEED - distanceToNext;
-
-            if (distanceToHyper < 0) {
-                currentObject.hyperDash = true;
-                lastExcess = this.halfCatcherWidth;
-            }
-            else {
-                lastExcess = Math.clamp(distanceToHyper, 0, this.halfCatcherWidth);
-            }
-
-            lastDirection = thisDirection;
-        }
     }
 
+    // hyperdash
+    let lastDirection = 0;
+    let lastExcess = this.halfCatcherWidth;
+
+    for (let i = 0; i < this.palpableObjects.length - 1; i++) {
+        var currentObject = this.palpableObjects[i];
+        var nextObject = this.palpableObjects[i + 1];
+
+        currentObject.hyperDash = false;
+
+        let thisDirection = nextObject.x > currentObject.x ? 1 : -1;
+        let timeToNext = nextObject.time - currentObject.time - 1000 / 60 / 4; // 1/4th of a frame of grace time, taken from osu-stable
+        let distanceToNext = Math.abs(nextObject.x - currentObject.x) - (lastDirection == thisDirection ? lastExcess : this.halfCatcherWidth);
+        let distanceToHyper = timeToNext * this.BASE_DASH_SPEED - distanceToNext;
+
+        if (distanceToHyper < 0) {
+            currentObject.hyperDash = true;
+            lastExcess = this.halfCatcherWidth;
+            this.hyperDashes.push({ score: distanceToHyper, time: currentObject.time });
+        }
+        else {
+            lastExcess = Math.clamp(distanceToHyper, 0, this.halfCatcherWidth);
+            this.whiteDashes.push({ score: distanceToHyper, time: currentObject.time });
+        }
+
+        lastDirection = thisDirection;
+    }
+
+    this.whiteDashes.sort((a, b) => a.score - b.score);
+    this.hyperDashes.sort((a, b) => a.score - b.score);
+
+    //console.log(this.whiteDashes)
+    //console.log(this.hyperDashes)
 }
 Catch.prototype = Object.create(Beatmap.prototype, {
     approachTime: { // droptime
