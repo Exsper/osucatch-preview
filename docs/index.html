@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="nofollow, noindex, noarchive">
+    <title>osu!catch-preview</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            height: 100%;
+            max-width: 960px;
+            display: inline;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        .title {
+            margin: 0 12px 60px 12px;
+            font-size: 24px;
+            color: #aaa;
+        }
+
+        .detail {
+            font-size: 20px;
+            color: #aaa;
+        }
+
+        h1 {
+            font-size: 72px;
+            color: #eee;
+            margin: 32px 0 16px 0;
+        }
+
+        h2 {
+            font-size: 44px;
+            color: #ddd;
+            margin: 32px 0;
+        }
+
+        h3 {
+            font-size: 28px;
+            color: #ddd;
+            margin: 32px 0;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+        }
+
+        .box {
+            width: 432px;
+            height: 200px;
+            padding: 12px 16px;
+            margin: 12px;
+            border: 1px solid #aaa;
+        }
+
+        .footbox {
+            width: 280px;
+            height: 180px;
+            padding: 12px 16px;
+        }
+
+        .boxdiv {
+            margin: 40px 12px 20px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .textbox {
+            margin: 2px;
+            padding: 0;
+            width: 300px;
+            height: 40px;
+            background: transparent;
+            color: #fff;
+            font-size: 16px;
+            border: 1px solid #aaa;
+            text-align: center;
+        }
+
+        .gotobtn {
+            margin: 2px;
+            padding: 0;
+            border: 1px solid #aaa;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            width: 42px;
+            height: 42px;
+            font: 24px sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="padding:32px 16px; text-align: center;">
+        <h1>osu!catch 谱面预览</h1>
+        <p class="title">支持catch专谱和osu转谱</p>
+        <div class="container">
+            <div class="box">
+                <h2>在线谱面预览</h2>
+                <div class="boxdiv">
+                    <input id="bid" class="textbox" type="text" placeholder="输入谱面BID或BID-mod，比如12345-HR" />
+                    <input class="gotobtn" type="button" value="▶" onclick="gotopreview()">
+                </div>
+            </div>
+            <div class="box">
+                <h2>本地谱面预览</h2>
+                <div class="boxdiv">
+                    <input class="gotobtn" type="button" value="▶" onclick="gotolocalpreview()">
+                </div>
+            </div>
+        </div>
+        <div class="container" style="margin: 60px 0;">
+            <div class="footbox">
+                <h3>小夜加速</h3>
+                <p class="detail">使用Sayobot镜像服务器加速在线预览时谱面下载速度</p>
+            </div>
+            <div class="footbox">
+                <h3>大跳统计(鸽了)</h3>
+                <p class="detail">统计有多少白果跳和红果跳</p>
+            </div>
+            <div class="footbox">
+                <h3>PPY的屎</h3>
+                <p class="detail">内含诸多stable历史遗留的屎和bug</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (window.location.hash) {
+            window.location = './preview.html' + window.location.hash;
+        }
+
+        function gotopreview() {
+            let bid = document.getElementById("bid").value;
+            if (!bid) window.location = './preview.html';
+            else window.location = './preview.html#' + bid;
+        }
+
+        function gotolocalpreview() {
+            window.location = './localpreview.html';
+        }
+
+        document.body.style.backgroundImage = "linear-gradient( rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7) ), url(" + "https://www.loliapi.com/acg/" + ")";
+
+    </script>
+
+</body>
+
+</html>
