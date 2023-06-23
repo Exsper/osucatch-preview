@@ -556,7 +556,23 @@
             }
         }
 
+        function iniColorChange() {
+            let $this = $("#btnColorChange");
+            let savedColorChange = window.localStorage.getItem("ColorChange");
+            let colorChange = (savedColorChange) ? parseInt(savedColorChange) : 0;
+            $this.value = colorChange;
+            if (colorChange) {
+                $this.val("1");
+                $this.text("每个物件换色");
+            }
+            else {
+                $this.val("0");
+                $this.text("NewCombo换色");
+            }
+        }
+
         iniDefaultColor();
+        iniColorChange();
 
         $("#btnDefaultColor").on('click', function () {
             let $this = $("#btnDefaultColor");
@@ -570,6 +586,21 @@
                 $this.val("1");
                 $this.text("忽略谱面物件颜色");
                 window.localStorage.setItem("DefaultColor", 1);
+            }
+        });
+
+        $("#btnColorChange").on('click', function () {
+            let $this = $("#btnColorChange");
+            var val = $this.val() || "0";
+            if (val === "1") {
+                $this.val("0");
+                $this.text("NewCombo换色");
+                window.localStorage.setItem("ColorChange", 0);
+            }
+            else {
+                $this.val("1");
+                $this.text("每个物件换色");
+                window.localStorage.setItem("ColorChange", 1);
             }
         });
 
