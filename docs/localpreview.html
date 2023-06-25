@@ -32,6 +32,8 @@
     <div id="settingsPanel">
         <button>点击切换，刷新生效</button>
         <button id="btnDefaultColor" class="settingsbtn" value="0">使用谱面物件颜色</button>
+        <button id="btnColorChange" class="settingsbtn" value="0">NewCombo换色</button>
+        <button id="btnWhiteBanana" class="settingsbtn" value="0">不显示推荐香蕉路线</button>
     </div>
     <div id="control">
         <span id="playtime">00:00</span>
@@ -571,8 +573,24 @@
             }
         }
 
+        function iniWhiteBanana() {
+            let $this = $("#btnWhiteBanana");
+            let savedWhiteBanana = window.localStorage.getItem("WhiteBanana");
+            let whiteBanana = (savedWhiteBanana) ? parseInt(savedWhiteBanana) : 0;
+            $this.value = whiteBanana;
+            if (whiteBanana) {
+                $this.val("1");
+                $this.text("白色显示推荐香蕉路线");
+            }
+            else {
+                $this.val("0");
+                $this.text("不显示推荐香蕉路线");
+            }
+        }
+
         iniDefaultColor();
         iniColorChange();
+        iniWhiteBanana();
 
         $("#btnDefaultColor").on('click', function () {
             let $this = $("#btnDefaultColor");
@@ -601,6 +619,21 @@
                 $this.val("1");
                 $this.text("每个物件换色");
                 window.localStorage.setItem("ColorChange", 1);
+            }
+        });
+
+        $("#btnWhiteBanana").on('click', function () {
+            let $this = $("#btnWhiteBanana");
+            var val = $this.val() || "0";
+            if (val === "1") {
+                $this.val("0");
+                $this.text("不显示推荐香蕉路线");
+                window.localStorage.setItem("WhiteBanana", 0);
+            }
+            else {
+                $this.val("1");
+                $this.text("白色显示推荐香蕉路线");
+                window.localStorage.setItem("WhiteBanana", 1);
             }
         });
 

@@ -7,6 +7,9 @@ function Catch(osu, mods) {
     let savedColorChange = window.localStorage.getItem("ColorChange");
     this.colorChange = (savedColorChange) ? parseInt(savedColorChange) : 0;
 
+    let savedWhiteBanana = window.localStorage.getItem("WhiteBanana");
+    this.whiteBanana = (savedWhiteBanana) ? parseInt(savedWhiteBanana) : 0;
+
     if (this.Colors.length && !this.useDefaultColor) {
         this.Colors.push(this.Colors.shift());
     }
@@ -153,6 +156,73 @@ function Catch(osu, mods) {
             this.fullCatchObjects.push(pch);
         }
         else if (hitObject instanceof BananaShower) {
+            if (this.whiteBanana) {
+                // 计算香蕉最佳路径
+                let bananas = hitObject.nested;
+                // 考虑到spin一般为孤立的，不考虑spin前后物件
+                // let start = null;
+                // if (this.fullCatchObjects.length > 0) start = this.fullCatchObjects[this.fullCatchObjects.length - 1];
+                // let end = null;
+                // 计算最长路径
+                // 设开始节点为start，通向包含end的所有节点，路径赋值均为1
+                // 设结束节点为end，连接包含start的所有节点，路径赋值均为1
+                // 香蕉索引为1-n，开始节点索引为0，结束节点索引为n+1
+                let n = bananas.length;
+                let G = [];
+                let dp = []
+                let choice = [];
+                // 初始化
+                for (let ni = 0; ni <= n + 1; ni++) {
+                    G[ni] = [];
+                    choice[ni] = -1;
+                    dp[ni] = -1;
+                }
+                // 开始
+                for (let ni = 1; ni <= n + 1; ni++) {
+                    G[0][ni] = 1;
+                }
+                // 结束
+                for (let ni = 0; ni <= n; ni++) {
+                    G[ni][n + 1] = 1;
+                }
+                // 香蕉间
+                for (let ni = 1; ni <= n; ni++) {
+                    for (let nj = ni + 1; nj <= n; nj++) {
+                        // if 香蕉间的距离<=盘子速度*间隔时间 + 1/2 * 盘子大小  路径赋值1
+                        // else if 香蕉间的距离<=盘子速度*间隔时间 + 盘子大小  路径赋值 (盘子速度*间隔时间 + 盘子大小 - 香蕉间的距离) / (1/2 * 盘子大小)
+                        // else if 香蕉间的距离>盘子速度*间隔时间 + 盘子大小  断路
+                        let bspace = Math.abs(bananas[ni - 1].x - bananas[nj - 1].x);
+                        let btime = bananas[nj - 1].time - bananas[ni - 1].time - 1000 / 60 / 4;
+                        if (bspace <= btime * this.BASE_WALK_SPEED + this.halfCatcherWidth) G[ni][nj] = 1;
+                        else if (bspace <= btime * this.BASE_WALK_SPEED + this.catchWidth) G[ni][nj] = (btime * this.BASE_WALK_SPEED + this.catchWidth - bspace) / this.halfCatcherWidth;
+                        else if (bspace <= btime * this.BASE_DASH_SPEED + this.halfCatcherWidth) G[ni][nj] = 0.5;
+                        else if (bspace <= btime * this.BASE_DASH_SPEED + this.catchWidth) G[ni][nj] = (btime * this.BASE_DASH_SPEED + this.catchWidth - bspace) / this.halfCatcherWidth / 2;
+
+                    }
+                }
+                function DP(ni) {
+                    if (dp[ni] > 0) return dp[ni];
+                    for (let nj = ni + 1; nj <= n + 1; nj++) {
+                        if (G[ni][nj] && G[ni][nj] > 0) {
+                            let temp = DP(nj) + G[ni][nj];
+                            if (temp > dp[ni]) {
+                                dp[ni] = temp;
+                                choice[ni] = nj;
+                            }
+                        }
+                    }
+                    return dp[ni];
+                }
+                let maxdp = DP(0);
+                // console.log(choice)
+                // 最优节点涂上白色
+                let ni = 0;
+                while (ni <= (n + 1) && (choice[ni]) != -1) {
+                    ni = choice[ni];
+                    if ((ni - 1) < n) bananas[ni - 1].color = 'rgb(255,255,255)';
+                }
+            }
+
             hitObject.nested.forEach(banana => {
                 this.fullCatchObjects.push(banana);
             });
@@ -168,8 +238,8 @@ function Catch(osu, mods) {
     this.fullCatchObjects.sort((a, b) => a.time - b.time);
 
 
-    this.whiteDashes = [];
-    this.hyperDashes = [];
+    //this.whiteDashes = [];
+    //this.hyperDashes = [];
 
     // hyperdash
     let lastDirection = 0;
@@ -189,21 +259,23 @@ function Catch(osu, mods) {
         if (distanceToHyper < 0) {
             currentObject.hyperDash = true;
             lastExcess = this.halfCatcherWidth;
-            this.hyperDashes.push({ score: distanceToHyper, time: currentObject.time });
+            //this.hyperDashes.push({ score: distanceToHyper, time: currentObject.time });
         }
         else {
             lastExcess = Math.clamp(distanceToHyper, 0, this.halfCatcherWidth);
-            this.whiteDashes.push({ score: distanceToHyper, time: currentObject.time });
+            //this.whiteDashes.push({ score: distanceToHyper, time: currentObject.time });
         }
 
         lastDirection = thisDirection;
     }
 
-    this.whiteDashes.sort((a, b) => a.score - b.score);
-    this.hyperDashes.sort((a, b) => a.score - b.score);
+    //this.whiteDashes.sort((a, b) => a.score - b.score);
+    //this.hyperDashes.sort((a, b) => a.score - b.score);
 
     //console.log(this.whiteDashes)
     //console.log(this.hyperDashes)
+
+
 }
 Catch.prototype = Object.create(Beatmap.prototype, {
     approachTime: { // droptime
