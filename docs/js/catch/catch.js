@@ -346,3 +346,18 @@ Catch.prototype.processBG = function (ctx) {
     ctx.fillStyle = '#fff';
     ctx.fill();
 };
+
+Catch.prototype.processProgressBar = function (ctx, totalTime) {
+    
+    ctx.fillStyle = '#fce331';
+    let ctxheight = ctx.canvas.height;
+    let ctxwidth = ctx.canvas.width;
+    for (var i = 0; i < this.HitObjects.length; i++) {
+        let hitObject = this.HitObjects[i];
+        if (hitObject instanceof BananaShower) {
+            let time = hitObject.time;
+            let endtime = hitObject.endTime;
+            ctx.fillRect(ctxwidth * time / totalTime, 0, ctxwidth * (endtime - time) / totalTime, ctxheight);
+        }
+    }
+};

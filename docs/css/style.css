@@ -57,6 +57,17 @@ body.h #mania.e {
     background-position: center;
 }
 
+#progress-container {
+    left: 66px;
+    position: absolute;
+    bottom: 0px;
+    width: calc(100% - 242px);
+    height: 12px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+}
+
 #play {
     top: 0;
     left: 0;
@@ -137,7 +148,7 @@ body.h #mania.e {
     flex-direction: column;
 }
 
-#openContent button{
+#openContent button {
     margin: 2px;
     padding: 0;
     border: 1px solid #aaa;
@@ -161,7 +172,8 @@ body.h #mania.e {
     display: none;
 }
 
-#settingsPanel .settingsbtn:hover, #settingsPanel .settingsbtn:active {
+#settingsPanel .settingsbtn:hover,
+#settingsPanel .settingsbtn:active {
     border: 1px solid #aaa;
 }
 

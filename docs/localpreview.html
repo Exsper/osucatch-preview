@@ -38,12 +38,12 @@
     <div id="control">
         <span id="playtime">00:00</span>
         <input id="progress" type="range" min="0" max="0" value="0">
+        <div id="progress-container"></div>
         <input id="volume" type="range" min="0" max="100" value="100">
         <button id="settings" class="material-icons">&#xE5D2;</button>
         <button id="fullscreen" class="material-icons">&#xE5D0;</button>
     </div>
     <div id="title">
-        <img src="./icon.svg" width="20" height="30" alt="基于血猫">
         <a target="_blank">等待选择谱面...</a>
     </div>
 
@@ -269,13 +269,40 @@
                     audioblob = null;
                 }
                 let modText = "";
+                /*
                 if (mod) {
                     modText = " +" + mod;
                 }
+                */
                 preview.load(bgblob, osufile, "", function () {
                     audio.src = audioblob;
                     $('#title a').text(this.beatmap.toString() + warningText + modText);
                     $('#play').addClass('e');
+
+                    var canvas = document.createElement('canvas');
+                    canvas.id = 'progressbarcanvas';
+                    canvas.width = document.getElementById("progress-container").offsetWidth;
+                    canvas.height = document.getElementById("progress-container").offsetHeight;
+                    var ctx = canvas.getContext('2d');
+                    let self = this;
+                    if (typeof this.beatmap.processProgressBar != 'undefined') {
+                        if (!audioblob) {
+                            self.beatmap.processProgressBar(ctx, audiolength * 1000);
+                            canvas.toBlob(function (blob) {
+                                var url = URL.createObjectURL(blob);
+                                document.getElementById("progress-container").style.backgroundImage = 'url(' + url + ')';
+                            });
+                        }
+                        else {
+                            audio.addEventListener("loadedmetadata", function () {
+                                self.beatmap.processProgressBar(ctx, audio.duration * 1000);
+                                canvas.toBlob(function (blob) {
+                                    var url = URL.createObjectURL(blob);
+                                    document.getElementById("progress-container").style.backgroundImage = 'url(' + url + ')';
+                                });
+                            });
+                        }
+                    }
                 }, function (e) {
                     alert(e);
                     console.log(e);
@@ -462,13 +489,40 @@
                     audioblob = null;
                 }
                 let modText = "";
+                /*
                 if (mod) {
                     modText = " +" + mod;
                 }
+                */
                 preview.load(bgblob, osufile, "", function () {
                     audio.src = audioblob;
                     $('#title a').text(this.beatmap.toString() + warningText + modText);
                     $('#play').addClass('e');
+
+                    var canvas = document.createElement('canvas');
+                    canvas.id = 'progressbarcanvas';
+                    canvas.width = document.getElementById("progress-container").offsetWidth;
+                    canvas.height = document.getElementById("progress-container").offsetHeight;
+                    var ctx = canvas.getContext('2d');
+                    let self = this;
+                    if (typeof this.beatmap.processProgressBar != 'undefined') {
+                        if (!audioblob) {
+                            self.beatmap.processProgressBar(ctx, audiolength * 1000);
+                            canvas.toBlob(function (blob) {
+                                var url = URL.createObjectURL(blob);
+                                document.getElementById("progress-container").style.backgroundImage = 'url(' + url + ')';
+                            });
+                        }
+                        else {
+                            audio.addEventListener("loadedmetadata", function () {
+                                self.beatmap.processProgressBar(ctx, audio.duration * 1000);
+                                canvas.toBlob(function (blob) {
+                                    var url = URL.createObjectURL(blob);
+                                    document.getElementById("progress-container").style.backgroundImage = 'url(' + url + ')';
+                                });
+                            });
+                        }
+                    }
                 }, function (e) {
                     alert(e);
                     console.log(e);
