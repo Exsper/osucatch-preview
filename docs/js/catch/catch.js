@@ -194,7 +194,7 @@ function Catch(osu, mods) {
                         let bspace = Math.abs(bananas[ni - 1].x - bananas[nj - 1].x);
                         let btime = bananas[nj - 1].time - bananas[ni - 1].time - 1000 / 60 / 4;
                         if (bspace <= btime * this.BASE_WALK_SPEED + this.halfCatcherWidth) G[ni][nj] = 1;
-                        else if (bspace <= btime * this.BASE_WALK_SPEED + this.catchWidth) G[ni][nj] = (btime * this.BASE_WALK_SPEED + this.catchWidth - bspace) / this.halfCatcherWidth;
+                        else if (bspace <= btime * this.BASE_WALK_SPEED + this.catchWidth) G[ni][nj] = ((btime * this.BASE_WALK_SPEED + this.catchWidth - bspace) / this.halfCatcherWidth) / 2 + 0.5;
                         else if (bspace <= btime * this.BASE_DASH_SPEED + this.halfCatcherWidth) G[ni][nj] = 0.5;
                         else if (bspace <= btime * this.BASE_DASH_SPEED + this.catchWidth) G[ni][nj] = (btime * this.BASE_DASH_SPEED + this.catchWidth - bspace) / this.halfCatcherWidth / 2;
 
