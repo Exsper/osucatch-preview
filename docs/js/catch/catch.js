@@ -171,11 +171,13 @@ function Catch(osu, mods) {
                 let G = [];
                 let dp = []
                 let choice = [];
+                let needdash = [];
                 // 初始化
                 for (let ni = 0; ni <= n + 1; ni++) {
                     G[ni] = [];
                     choice[ni] = -1;
                     dp[ni] = -1;
+                    needdash[ni] = -1;
                 }
                 // 开始
                 for (let ni = 1; ni <= n + 1; ni++) {
@@ -208,6 +210,7 @@ function Catch(osu, mods) {
                             if (temp > dp[ni]) {
                                 dp[ni] = temp;
                                 choice[ni] = nj;
+                                needdash[ni] = (G[ni][nj]<=0.5) ? 1 : 0;
                             }
                         }
                     }
@@ -219,7 +222,13 @@ function Catch(osu, mods) {
                 let ni = 0;
                 while (ni <= (n + 1) && (choice[ni]) != -1) {
                     ni = choice[ni];
-                    if ((ni - 1) < n) bananas[ni - 1].color = 'rgb(255,255,255)';
+                    if ((ni - 1) < n) {
+                        if (needdash[ni] > 0)
+                            bananas[ni - 1].color = 'rgb(255,128,128)';
+                        else
+                            bananas[ni - 1].color = 'rgb(255,255,255)';
+                    }
+ 
                 }
             }
 
