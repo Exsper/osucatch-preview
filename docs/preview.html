@@ -184,9 +184,9 @@
                         for (entry in entries) {
                             let lastIndex = entries[entry].filename.lastIndexOf("[");
                             let string1 = entries[entry].filename.substring(lastIndex);
-                            string1 = string1.replace(/[^a-zA-Z0-9]/g, " ");
+                            string1 = string1.replace(/[\/:*?"<>|]/g, "").replace(/[^a-zA-Z0-9]/g, " ");
                             let string2 = "[" + sayoData.bid_data[diffIndex].version + "].osu";
-                            string2 = string2.replace(/[^a-zA-Z0-9]/g, " ");
+                            string2 = string2.replace(/[\/:*?"<>|]/g, "").replace(/[^a-zA-Z0-9]/g, " ");
                             if (string1.toLowerCase() === string2.toLowerCase()) {
                                 found = true;
                                 let text = await entries[entry].getData(
@@ -226,7 +226,7 @@
                         if (!bgfound) {
                             console.log("定位背景文件失败，尝试仅匹配英文字符");
                             for (entry in entries) {
-                                if (entries[entry].filename.replace(/[^a-zA-Z0-9]/g, " ") === bgfilename.replace(/[^a-zA-Z0-9]/g, " ")) {
+                                if (entries[entry].filename.replace(/[\/:*?"<>|]/g, "").replace(/[^a-zA-Z0-9]/g, " ") === bgfilename.replace(/[\/:*?"<>|]/g, "").replace(/[^a-zA-Z0-9]/g, " ")) {
                                     bgfound = true;
                                     let extension = bgfilename.split(".").pop();
                                     let bgblob2 = await entries[entry].getData(
@@ -257,7 +257,7 @@
                         if (!audiofound) {
                             console.log("定位音乐文件失败，尝试仅匹配英文字符");
                             for (entry in entries) {
-                                if (entries[entry].filename.replace(/[^a-zA-Z0-9]/g, " ") === audiofilename.replace(/[^a-zA-Z0-9]/g, " ")) {
+                                if (entries[entry].filename.replace(/[\/:*?"<>|]/g, "").replace(/[^a-zA-Z0-9]/g, " ") === audiofilename.replace(/[\/:*?"<>|]/g, "").replace(/[^a-zA-Z0-9]/g, " ")) {
                                     audiofound = true;
                                     let extension = audiofilename.split(".").pop();
                                     let audioblob2 = await entries[entry].getData(
