@@ -167,7 +167,10 @@ JuiceStream.prototype.buildNested = function() {
     this.nested = this.nested.filter((item) => {
         if (item.type != "TinyDroplet") return true;
         for (let td = 0; td < tmp_droplets.length; td++) {
-            if (Math.abs(item.time - tmp_droplets[td].time) < 0.01) return false;
+            if (Math.abs(item.time - tmp_droplets[td].time) < 0.01) {
+                console.warn("丢弃重复TinyDroplet，可能引起谱面错误", item);
+                return false;
+            }
         }
         return true;
     });
