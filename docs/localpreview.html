@@ -91,6 +91,7 @@
 
         var entries;
         var diffs = [];
+        var mod = "";
 
         var fileInput = document.querySelector('#fileInput');
         fileInput.onchange = function () {
@@ -123,6 +124,15 @@
                     document.getElementById("folderInput").remove();
                     document.getElementById("FakeFolderInput").remove();
                     document.getElementById("openTitle").textContent = "选择难度";
+                    let modSwitch = document.createElement("select");
+                    modSwitch.style = "float:right";
+                    modSwitch.options.add(new Option("No mod", ""));
+                    modSwitch.options.add(new Option("HR", "HR"));
+                    modSwitch.options.add(new Option("EZ", "EZ"));
+                    modSwitch.addEventListener('change', function (event) {
+                        mod = event.target.value;
+                    });
+                    document.getElementById("openTitle").appendChild(modSwitch);
                     for (diffIndex in diffs) {
                         let sbtn = document.createElement("button");
                         sbtn.setAttribute("diff", diffIndex);
@@ -269,12 +279,10 @@
                     audioblob = null;
                 }
                 let modText = "";
-                /*
                 if (mod) {
                     modText = " +" + mod;
                 }
-                */
-                preview.load(bgblob, osufile, "", function () {
+                preview.load(bgblob, osufile, mod, function () {
                     audio.src = audioblob;
                     $('#title a').text(this.beatmap.toString() + warningText + modText);
                     $('#play').addClass('e');
@@ -363,6 +371,15 @@
                 document.getElementById("folderInput").remove();
                 document.getElementById("FakeFolderInput").remove();
                 document.getElementById("openTitle").textContent = "选择难度";
+                let modSwitch = document.createElement("select");
+                modSwitch.style = "float:right";
+                modSwitch.options.add(new Option("No mod", ""));
+                modSwitch.options.add(new Option("HR", "HR"));
+                modSwitch.options.add(new Option("EZ", "EZ"));
+                modSwitch.addEventListener('change', function (event) {
+                    mod = event.target.value;
+                });
+                document.getElementById("openTitle").appendChild(modSwitch);
                 for (diffIndex in folderdiffs) {
                     let sbtn = document.createElement("button");
                     sbtn.setAttribute("diff", diffIndex);
@@ -489,12 +506,10 @@
                     audioblob = null;
                 }
                 let modText = "";
-                /*
                 if (mod) {
                     modText = " +" + mod;
                 }
-                */
-                preview.load(bgblob, osufile, "", function () {
+                preview.load(bgblob, osufile, mod, function () {
                     audio.src = audioblob;
                     $('#title a').text(this.beatmap.toString() + warningText + modText);
                     $('#play').addClass('e');
