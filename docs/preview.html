@@ -121,7 +121,8 @@
                 //search version
                 let diffIndex = sayoData.bid_data.findIndex((biddata) => biddata.bid.toString() === beatmapID);
                 if (diffIndex < 0) diffIndex = 0;
-                osufilename = artist + " - " + title + " (" + sayoData.creator + ") [" + sayoData.bid_data[diffIndex].version + "].osu";
+                let bidData = sayoData.bid_data[diffIndex];
+                osufilename = artist + " - " + title + " (" + sayoData.creator + ") [" + bidData.version + "].osu";
                 console.log("osufilename:" + osufilename);
 
                 audiolength = sayoData.bid_data.sort(function (a, b) {
@@ -185,7 +186,7 @@
                             let lastIndex = entries[entry].filename.lastIndexOf("[");
                             let string1 = entries[entry].filename.substring(lastIndex);
                             string1 = string1.replace(/[\/:*?"<>|]/g, "").replace(/[^a-zA-Z0-9]/g, " ");
-                            let string2 = "[" + sayoData.bid_data[diffIndex].version + "].osu";
+                            let string2 = "[" + bidData.version + "].osu";
                             string2 = string2.replace(/[\/:*?"<>|]/g, "").replace(/[^a-zA-Z0-9]/g, " ");
                             if (string1.toLowerCase() === string2.toLowerCase()) {
                                 found = true;
