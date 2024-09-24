@@ -210,7 +210,7 @@ function Catch(osu, mods) {
                             if (temp > dp[ni]) {
                                 dp[ni] = temp;
                                 choice[ni] = nj;
-                                needdash[ni] = (G[ni][nj]<=0.5) ? 1 : 0;
+                                needdash[ni] = (G[ni][nj] <= 0.5) ? 1 : 0;
                             }
                         }
                     }
@@ -228,7 +228,7 @@ function Catch(osu, mods) {
                         else
                             bananas[ni - 1].color = 'rgb(255,255,255)';
                     }
- 
+
                 }
             }
 
@@ -337,6 +337,60 @@ Catch.prototype.draw = function (time, ctx) {
         catchHitObject.draw(time, ctx);
     }
 };
+Catch.prototype.draw2 = function () {
+    // 缩小倍数
+    const SCALE = 0.2;
+    // 每一列20个屏幕大小，不够换列
+    const SCREENSHEIGHT = 20;
+    let objs = [];
+    // 预先分析一遍，需要的长宽
+    for (let i = 0; i < this.fullCatchObjects.length; i++) {
+        objs.push(this.fullCatchObjects[i].predraw2(SCREENSHEIGHT, SCALE));
+    }
+    if (objs.length <= 0) return;
+    let cols = objs[objs.length - 1].col;
+    let width;
+    let height;
+    if (cols <= 1) {
+        width = Beatmap.WIDTH * SCALE;
+        height = objs.reduce((acc, cur) => Math.max(acc.y, cur.y), Number.MIN_SAFE_INTEGER) * SCALE;
+    }
+    else {
+        width = (Beatmap.WIDTH * SCALE + 20) * cols;
+        height = SCREENSHEIGHT * Beatmap.HEIGHT * SCALE;
+    }
+    let canvas2 = document.createElement('canvas');
+    canvas2.width = width;
+    canvas2.height = height;
+    let ctx2 = canvas2.getContext('2d');
+    ctx2.save();
+    ctx2.rect(0, 0, width, height);
+    ctx2.fillStyle = "black";
+    ctx2.fill();
+    ctx2.restore();
+    // 画分界线
+    if (cols > 1) {
+        for (let i = 1; i < cols; i++) {
+            ctx2.save();
+            ctx2.fillStyle = "white";
+            ctx2.fillRect((Beatmap.WIDTH + 20 / SCALE) * i * SCALE - 11, 0, 2, height);
+            ctx2.restore();
+        }
+    }
+    for (let i = 0; i < this.fullCatchObjects.length; i++) {
+        this.fullCatchObjects[i].draw2(objs[i], SCALE, ctx2);
+    }
+    canvas2.toBlob(function (blob) {
+        // 创建下载链接
+        var link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "预览图.png";
+
+        // 触发下载
+        link.click();
+    }, "image/png");
+};
+
 Catch.prototype.processBG = function (ctx) {
     // line
     ctx.beginPath();
@@ -357,7 +411,7 @@ Catch.prototype.processBG = function (ctx) {
 };
 
 Catch.prototype.processProgressBar = function (ctx, totalTime) {
-    
+
     ctx.fillStyle = '#fce331';
     let ctxheight = ctx.canvas.height;
     let ctxwidth = ctx.canvas.width;

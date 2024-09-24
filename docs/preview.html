@@ -23,6 +23,7 @@
         <button id="btnDefaultColor" class="settingsbtn" value="0">使用谱面物件颜色</button>
         <button id="btnColorChange" class="settingsbtn" value="0">NewCombo换色</button>
         <button id="btnWhiteBanana" class="settingsbtn" value="0">不显示推荐香蕉路线</button>
+        <button id="outputPic" class="settingsbtn" value="0">导出谱面预览图</button>
     </div>
     <div id="control">
         <span id="playtime">00:00</span>
@@ -509,6 +510,10 @@
                 $this.text("白色显示推荐香蕉路线");
                 window.localStorage.setItem("WhiteBanana", 1);
             }
+        });
+
+        $("#outputPic").on('click', function () {
+            window.preview.output();
         });
 
         $('#play').on('click', function (e) {

@@ -77,3 +77,7 @@ Preview.prototype.at = function (time) {
     this.ctx.restore();
     this.beatmap.draw(time, this.ctx);
 };
+
+Preview.prototype.output = function () {
+    this.beatmap.draw2();
+};
