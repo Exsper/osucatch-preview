@@ -340,11 +340,39 @@ Catch.prototype.draw = function (time, ctx) {
 Catch.prototype.draw2 = function () {
     // 缩小倍数
     const SCALE = 0.2;
-    // 每一列20个屏幕大小，不够换列
-    const SCREENSHEIGHT = 20;
+    // 初定每一列20个屏幕大小，不够换列
+    let SCREENSHEIGHT = 20;
     let objs = [];
+    // 分析小节线
+    let barLines = [];
+    let endTime = (this.HitObjects.length ? this.HitObjects[this.HitObjects.length - 1].endTime : 0) + 1;
+    for (let i = 0; i < this.TimingPoints.length; i++) {
+        let current = this.TimingPoints[i],
+            base = current.parent || current,
+            barLength = base.beatLength * base.meter,
+            next = this.TimingPoints[i + 1],
+            barLineLimit = next ? (next.parent || next).time : endTime;
+        for (let barTime = base.time; barTime < barLineLimit; barTime += barLength) {
+            barLines.push(barTime);
+        }
+    }
+    // 去除offset
+    for (let i = 0; i < barLines.length; i++) {
+        barLines[i] -= barLines[0];
+    }
+    // 计算最接近初定图片高度的小节线，以它作为图片高度
+    for (let i = 0; i < barLines.length; i++) {
+        let real_y = (SCREENSHEIGHT - barLines[i] / this.approachTime) * Beatmap.HEIGHT;
+        if (real_y < 0) {
+            // TODO：怎么调都有偏差，坑
+            SCREENSHEIGHT = (SCREENSHEIGHT * Beatmap.HEIGHT - real_y - 54) / Beatmap.HEIGHT;
+            break;
+        }
+    }
     // 预先分析一遍，需要的长宽
     for (let i = 0; i < this.fullCatchObjects.length; i++) {
+        // 去除offset
+        this.fullCatchObjects[i].time -= barLines[0];
         objs.push(this.fullCatchObjects[i].predraw2(SCREENSHEIGHT, SCALE));
     }
     if (objs.length <= 0) return;
@@ -377,6 +405,40 @@ Catch.prototype.draw2 = function () {
             ctx2.restore();
         }
     }
+    // 画小节线
+    for (let i = 0; i < barLines.length; i++) {
+        let real_x_1 = 0;
+        let real_x_2 = Beatmap.WIDTH;
+        let real_y = (SCREENSHEIGHT - barLines[i] / this.approachTime) * Beatmap.HEIGHT;
+        let colIndex = 1;
+        while (real_y < 0) {
+            colIndex += 1;
+            real_x_1 = (Beatmap.WIDTH + 20 / SCALE) * (colIndex - 1);
+            real_x_2 = real_x_1 + Beatmap.WIDTH;
+            real_y = (SCREENSHEIGHT * colIndex - barLines[i] / this.approachTime) * Beatmap.HEIGHT;
+        }
+        // 整体缩小
+        real_x_1 *= SCALE;
+        real_x_2 *= SCALE;
+        real_y *= SCALE;
+
+        ctx2.save();
+        ctx2.beginPath();
+        ctx2.moveTo(real_x_1, real_y);
+        ctx2.lineTo(real_x_2, real_y);
+        ctx2.strokeStyle = '#fff';
+        ctx2.lineWidth = 1;
+        ctx2.stroke();
+        // 添加文字
+        ctx2.strokeStyle = 'pink';
+        ctx2.font = "16px";
+        ctx2.textBaseline = "middle";
+        ctx2.textAlign = "end";
+        ctx2.strokeText((barLines[i]/1000).toFixed(1), real_x_2, real_y);
+        ctx2.restore();
+    }
+
+
     for (let i = 0; i < this.fullCatchObjects.length; i++) {
         this.fullCatchObjects[i].draw2(objs[i], SCALE, ctx2);
     }

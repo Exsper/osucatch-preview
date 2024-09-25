@@ -100,8 +100,8 @@ PalpableCatchHitObject.prototype.drawDashCircle2 = function(position, SCALE, ctx
     ctx.save();
     ctx.beginPath();
     ctx.shadowBlur = 0;
-    ctx.arc(position.x, position.y, this.radius * 1.1 * SCALE, -Math.PI, Math.PI);
-    ctx.lineWidth = this.radius * 0.2 * SCALE;
+    ctx.arc(position.x, position.y, this.radius * 1.2 * SCALE, -Math.PI, Math.PI);
+    ctx.lineWidth = this.radius * 0.4 * SCALE;
     ctx.strokeStyle = 'rgb(255,0,0)';
     ctx.stroke();
     ctx.restore();
