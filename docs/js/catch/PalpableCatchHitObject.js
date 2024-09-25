@@ -29,12 +29,12 @@ PalpableCatchHitObject.prototype.draw2 = function(obj, SCALE, ctx) {
 PalpableCatchHitObject.prototype.predraw2 = function (SCREENSHEIGHT, SCALE) {
     let dt = this.time;
     let real_x = this.x;
-    let real_y = (SCREENSHEIGHT - dt / this.beatmap.approachTime) * Beatmap.HEIGHT;
+    let real_y = SCREENSHEIGHT - dt * Beatmap.HEIGHT / this.beatmap.approachTime;
     let colIndex = 1;
     while (real_y < 0) {
         colIndex += 1;
         real_x = this.x + (Beatmap.WIDTH + 20 / SCALE) * (colIndex - 1);
-        real_y = (SCREENSHEIGHT * colIndex - dt / this.beatmap.approachTime) * Beatmap.HEIGHT;
+        real_y = SCREENSHEIGHT + real_y;
     }
     // 整体缩小
     real_x *= SCALE;

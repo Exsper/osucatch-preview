@@ -341,7 +341,7 @@ Catch.prototype.draw2 = function () {
     // 缩小倍数
     const SCALE = 0.2;
     // 初定每一列20个屏幕大小，不够换列
-    let SCREENSHEIGHT = 20;
+    let SCREENSHEIGHT = 20 * Beatmap.HEIGHT;
     let objs = [];
     // 分析小节线
     let barLines = [];
@@ -357,15 +357,16 @@ Catch.prototype.draw2 = function () {
         }
     }
     // 去除offset
+    let offset = barLines[0];
     for (let i = 0; i < barLines.length; i++) {
-        barLines[i] -= barLines[0];
+        barLines[i] -= offset;
     }
     // 计算最接近初定图片高度的小节线，以它作为图片高度
     for (let i = 0; i < barLines.length; i++) {
-        let real_y = (SCREENSHEIGHT - barLines[i] / this.approachTime) * Beatmap.HEIGHT;
+        let real_y = SCREENSHEIGHT - barLines[i] * Beatmap.HEIGHT / this.approachTime;
         if (real_y < 0) {
             // TODO：怎么调都有偏差，坑
-            SCREENSHEIGHT = (SCREENSHEIGHT * Beatmap.HEIGHT - real_y - 54) / Beatmap.HEIGHT;
+            SCREENSHEIGHT -= real_y;
             break;
         }
     }
@@ -385,7 +386,7 @@ Catch.prototype.draw2 = function () {
     }
     else {
         width = (Beatmap.WIDTH * SCALE + 20) * cols;
-        height = SCREENSHEIGHT * Beatmap.HEIGHT * SCALE;
+        height = SCREENSHEIGHT * SCALE;
     }
     let canvas2 = document.createElement('canvas');
     canvas2.width = width;
@@ -409,13 +410,13 @@ Catch.prototype.draw2 = function () {
     for (let i = 0; i < barLines.length; i++) {
         let real_x_1 = 0;
         let real_x_2 = Beatmap.WIDTH;
-        let real_y = (SCREENSHEIGHT - barLines[i] / this.approachTime) * Beatmap.HEIGHT;
+        let real_y = SCREENSHEIGHT - barLines[i] * Beatmap.HEIGHT / this.approachTime;
         let colIndex = 1;
         while (real_y < 0) {
             colIndex += 1;
             real_x_1 = (Beatmap.WIDTH + 20 / SCALE) * (colIndex - 1);
             real_x_2 = real_x_1 + Beatmap.WIDTH;
-            real_y = (SCREENSHEIGHT * colIndex - barLines[i] / this.approachTime) * Beatmap.HEIGHT;
+            real_y = SCREENSHEIGHT + real_y;
         }
         // 整体缩小
         real_x_1 *= SCALE;
@@ -431,7 +432,7 @@ Catch.prototype.draw2 = function () {
         ctx2.stroke();
         // 添加文字
         ctx2.strokeStyle = 'pink';
-        ctx2.font = "16px";
+        ctx2.font = "normal 16px 'Segoe UI'";
         ctx2.textBaseline = "middle";
         ctx2.textAlign = "end";
         ctx2.strokeText((barLines[i]/1000).toFixed(1), real_x_2, real_y);
