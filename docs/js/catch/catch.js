@@ -373,7 +373,7 @@ Catch.prototype.draw2 = function () {
     // 预先分析一遍，需要的长宽
     for (let i = 0; i < this.fullCatchObjects.length; i++) {
         // 去除offset
-        this.fullCatchObjects[i].time -= barLines[0];
+        this.fullCatchObjects[i].time -= offset;
         objs.push(this.fullCatchObjects[i].predraw2(SCREENSHEIGHT, SCALE));
     }
     if (objs.length <= 0) return;
