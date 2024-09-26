@@ -337,9 +337,7 @@ Catch.prototype.draw = function (time, ctx) {
         catchHitObject.draw(time, ctx);
     }
 };
-Catch.prototype.draw2 = function () {
-    // 缩小倍数
-    const SCALE = 0.2;
+Catch.prototype.draw2 = function (SCALE, canvas2) {
     // 初定每一列20个屏幕大小，不够换列
     let SCREENSHEIGHT = 20 * Beatmap.HEIGHT;
     let objs = [];
@@ -361,13 +359,21 @@ Catch.prototype.draw2 = function () {
     for (let i = 0; i < barLines.length; i++) {
         barLines[i] -= offset;
     }
-    // 计算最接近初定图片高度的小节线，以它作为图片高度
-    for (let i = 0; i < barLines.length; i++) {
-        let real_y = SCREENSHEIGHT - barLines[i] * Beatmap.HEIGHT / this.approachTime;
-        if (real_y < 0) {
-            // TODO：怎么调都有偏差，坑
-            SCREENSHEIGHT -= real_y;
-            break;
+    // 计算小节线普遍间隔
+    let barLineDeltas = [];
+    for (let i = 1; i < barLines.length; i++) {
+        let distance = parseInt(barLines[i] - barLines[i - 1]);
+        if (distance <= 100) continue;
+        let find = barLineDeltas.find((val) => val.distance === distance);
+        if (!find) barLineDeltas.push({ distance, count: 1 });
+        else find.count += 1;
+    }
+    if (barLineDeltas.length > 0) {
+        let mostCommonDistance = barLineDeltas.sort((a, b) => a.count - b.count).pop().distance * Beatmap.HEIGHT / this.approachTime;
+        // 计算最接近初定图片高度的小节线普遍间隔整数倍，以它作为图片高度
+        let c = parseInt(SCREENSHEIGHT / mostCommonDistance);
+        if (c > 3) {
+            SCREENSHEIGHT = c * mostCommonDistance;
         }
     }
     // 预先分析一遍，需要的长宽
@@ -388,7 +394,6 @@ Catch.prototype.draw2 = function () {
         width = (Beatmap.WIDTH * SCALE + 20) * cols;
         height = SCREENSHEIGHT * SCALE;
     }
-    let canvas2 = document.createElement('canvas');
     canvas2.width = width;
     canvas2.height = height;
     let ctx2 = canvas2.getContext('2d');
@@ -435,23 +440,14 @@ Catch.prototype.draw2 = function () {
         ctx2.font = "normal 16px 'Segoe UI'";
         ctx2.textBaseline = "middle";
         ctx2.textAlign = "end";
-        ctx2.strokeText((barLines[i]/1000).toFixed(1), real_x_2, real_y);
+        ctx2.strokeText((barLines[i] / 1000).toFixed(1), real_x_2, real_y);
         ctx2.restore();
     }
-
 
     for (let i = 0; i < this.fullCatchObjects.length; i++) {
         this.fullCatchObjects[i].draw2(objs[i], SCALE, ctx2);
     }
-    canvas2.toBlob(function (blob) {
-        // 创建下载链接
-        var link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "预览图.png";
 
-        // 触发下载
-        link.click();
-    }, "image/png");
 };
 
 Catch.prototype.processBG = function (ctx) {

@@ -29,13 +29,13 @@ function Preview(dest) {
         if (typeof self.beatmap.processBG != 'undefined') {
             self.beatmap.processBG(ctx);
         }
-        canvas.toBlob(function(blob) {
+        canvas.toBlob(function (blob) {
             var url = URL.createObjectURL(blob);
             self.background.src = url;
             self.container.style.backgroundImage = 'url(' + url + ')';
         });
     }
-    this.background.addEventListener('load', drawBG, {once: true});
+    this.background.addEventListener('load', drawBG, { once: true });
     this.background.addEventListener('error', function () {
         self.container.style.backgroundImage = 'none';
     });
@@ -49,26 +49,26 @@ Preview.prototype.load = function (bgblob, osufile, mod, success, fail) {
         HR: false,
         EZ: false
     }
-    if(mod) mods[mod] = true;
+    if (mod) mods[mod] = true;
 
     var self = this;
     try {
-            self.beatmap = Beatmap.parse(osufile, mods);
-            if (bgblob) self.background.src = bgblob;
-            self.ctx.restore();
-            self.ctx.save();
-            self.beatmap.update(self.ctx);
-            self.at(0);
+        self.beatmap = Beatmap.parse(osufile, mods);
+        if (bgblob) self.background.src = bgblob;
+        self.ctx.restore();
+        self.ctx.save();
+        self.beatmap.update(self.ctx);
+        self.at(0);
 
-            if (typeof success == 'function') {
-                success.call(self);
-            }
+        if (typeof success == 'function') {
+            success.call(self);
         }
-        catch (e) {
-            if (typeof fail == 'function') {
-                fail.call(self, e);
-            }
+    }
+    catch (e) {
+        if (typeof fail == 'function') {
+            fail.call(self, e);
         }
+    }
 };
 Preview.prototype.at = function (time) {
     this.ctx.save();
@@ -79,5 +79,16 @@ Preview.prototype.at = function (time) {
 };
 
 Preview.prototype.output = function () {
-    this.beatmap.draw2();
+    let canvas2 = document.createElement('canvas');
+    let SCALE = 0.2;
+    this.beatmap.draw2(SCALE, canvas2);
+    canvas2.toBlob(function (blob) {
+        // 创建下载链接
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "预览图.png";
+
+        // 触发下载
+        link.click();
+    }, "image/png");
 };
