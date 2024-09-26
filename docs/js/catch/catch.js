@@ -373,7 +373,7 @@ Catch.prototype.draw2 = function (SCALE) {
     // 计算小节线普遍间隔
     let barLineDeltas = [];
     for (let i = 1; i < barLines.length; i++) {
-        let distance = parseInt(barLines[i] - barLines[i - 1]);
+        let distance = parseInt((barLines[i] - barLines[i - 1]) * 100) / 100;
         if (distance <= 100) continue;
         let find = barLineDeltas.find((val) => val.distance === distance);
         if (!find) barLineDeltas.push({ distance, count: 1 });
