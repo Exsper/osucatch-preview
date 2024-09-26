@@ -357,10 +357,18 @@ Catch.prototype.draw2 = function (SCALE) {
             barLines.push(barTime);
         }
     }
+
     // 去除offset
     let offset = barLines[0];
     for (let i = 0; i < barLines.length; i++) {
         barLines[i] -= offset;
+    }
+
+    let timingLines = [];
+    for (let i = 0; i < this.TimingPoints.length; i++) {
+        // 绿线在ctb无关紧要，不用加
+        if (this.TimingPoints[i].parent) continue;
+        timingLines.push({ time: this.TimingPoints[i].time - offset, bpm: this.TimingPoints[i].bpm });
     }
     // 计算小节线普遍间隔
     let barLineDeltas = [];
@@ -381,9 +389,7 @@ Catch.prototype.draw2 = function (SCALE) {
     }
     // 预先分析一遍，需要的长宽
     for (let i = 0; i < this.fullCatchObjects.length; i++) {
-        // 去除offset
-        this.fullCatchObjects[i].time -= offset;
-        objs.push(this.fullCatchObjects[i].predraw2(SCREENSHEIGHT, SCALE));
+        objs.push(this.fullCatchObjects[i].predraw2(SCREENSHEIGHT, SCALE, offset));
     }
     if (objs.length <= 0) return;
     let cols = objs[objs.length - 1].col;
@@ -409,17 +415,17 @@ Catch.prototype.draw2 = function (SCALE) {
     // 画分界线
     ctx2.save();
     ctx2.fillStyle = "white";
-    ctx2.fillRect(BORDER_WIDTH - 11, 0, 2, height);
+    ctx2.fillRect(BORDER_WIDTH - 11, BORDER_HEIGHT, 2, height - 2 * BORDER_HEIGHT);
     ctx2.restore();
     ctx2.save();
     ctx2.fillStyle = "white";
-    ctx2.fillRect(width - BORDER_WIDTH + 11, 0, 2, height);
+    ctx2.fillRect(width - BORDER_WIDTH + 11, BORDER_HEIGHT, 2, height - 2 * BORDER_HEIGHT);
     ctx2.restore();
     if (cols > 1) {
         for (let i = 1; i < cols; i++) {
             ctx2.save();
             ctx2.fillStyle = "white";
-            ctx2.fillRect((Beatmap.WIDTH + 20 / SCALE) * i * SCALE - 11 + BORDER_WIDTH, 0, 2, height);
+            ctx2.fillRect((Beatmap.WIDTH + 20 / SCALE) * i * SCALE - 11 + BORDER_WIDTH, BORDER_HEIGHT, 2, height - 2 * BORDER_HEIGHT);
             ctx2.restore();
         }
     }
@@ -452,14 +458,14 @@ Catch.prototype.draw2 = function (SCALE) {
         ctx2.lineWidth = 1;
         ctx2.stroke();
         // 添加文字
-        ctx2.strokeStyle = 'pink';
+        ctx2.strokeStyle = 'white';
         ctx2.font = "normal 16px 'Segoe UI'";
         ctx2.textBaseline = "middle";
         ctx2.textAlign = "end";
-        ctx2.strokeText((barLines[i] / 1000).toFixed(1), real_x_2, real_y);
+        ctx2.strokeText(((barLines[i] + offset) / 1000).toFixed(1), real_x_2 + 4, real_y);
         ctx2.restore();
 
-        
+
         //将距离上下边缘比较近的复制一份到上下一次
         if (real_x_1 > (2 * BORDER_WIDTH) && real_y > (height - BORDER_HEIGHT - 5)) {
             // 靠近下边缘，在上一列的上边缘再画一条
@@ -478,11 +484,11 @@ Catch.prototype.draw2 = function (SCALE) {
             ctx2.lineWidth = 1;
             ctx2.stroke();
             // 添加文字
-            ctx2.strokeStyle = 'pink';
+            ctx2.strokeStyle = 'white';
             ctx2.font = "normal 16px 'Segoe UI'";
             ctx2.textBaseline = "middle";
             ctx2.textAlign = "end";
-            ctx2.strokeText((barLines[i] / 1000).toFixed(1), real_x_2, real_y);
+            ctx2.strokeText(((barLines[i] + offset) / 1000).toFixed(1), real_x_2 + 4, real_y);
             ctx2.restore();
         }
         else if (real_x_2 < (width - 2 * BORDER_WIDTH) && real_y < (BORDER_HEIGHT + 5)) {
@@ -502,14 +508,50 @@ Catch.prototype.draw2 = function (SCALE) {
             ctx2.lineWidth = 1;
             ctx2.stroke();
             // 添加文字
-            ctx2.strokeStyle = 'pink';
+            ctx2.strokeStyle = 'white';
             ctx2.font = "normal 16px 'Segoe UI'";
             ctx2.textBaseline = "middle";
             ctx2.textAlign = "end";
-            ctx2.strokeText((barLines[i] / 1000).toFixed(1), real_x_2, real_y);
+            ctx2.strokeText(((barLines[i] + offset) / 1000).toFixed(1), real_x_2 + 4, real_y);
             ctx2.restore();
         }
+    }
 
+    // 画timing线
+    for (let i = 0; i < timingLines.length; i++) {
+        let real_x_1 = 0;
+        let real_x_2 = Beatmap.WIDTH;
+        let real_y = SCREENSHEIGHT - timingLines[i].time * Beatmap.HEIGHT / this.approachTime;
+        let colIndex = 1;
+        while (real_y < 0) {
+            colIndex += 1;
+            real_x_1 = (Beatmap.WIDTH + 20 / SCALE) * (colIndex - 1);
+            real_x_2 = real_x_1 + Beatmap.WIDTH;
+            real_y = SCREENSHEIGHT + real_y;
+        }
+        // 整体缩小
+        real_x_1 *= SCALE;
+        real_x_2 *= SCALE;
+        real_y *= SCALE;
+        // 加上边缘
+        real_x_1 += BORDER_WIDTH;
+        real_x_2 += BORDER_WIDTH;
+        real_y += BORDER_HEIGHT;
+
+        ctx2.save();
+        ctx2.beginPath();
+        ctx2.moveTo(real_x_1, real_y);
+        ctx2.lineTo(real_x_2, real_y);
+        ctx2.strokeStyle = 'red';
+        ctx2.lineWidth = 2;
+        ctx2.stroke();
+        // 添加文字
+        ctx2.strokeStyle = 'red';
+        ctx2.font = "normal 16px 'Segoe UI'";
+        ctx2.textBaseline = "middle";
+        ctx2.textAlign = "start";
+        ctx2.strokeText((timingLines[i].bpm).toFixed(0), real_x_1 - 4, real_y - 10);
+        ctx2.restore();
     }
 
     for (let i = 0; i < this.fullCatchObjects.length; i++) {

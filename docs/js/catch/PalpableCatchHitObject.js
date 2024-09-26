@@ -24,8 +24,9 @@ PalpableCatchHitObject.prototype.draw2 = function (obj, SCALE, ctx, BORDER_WIDTH
         this.drawCircle2({ x: obj.x + BORDER_WIDTH, y: obj.y + BORDER_HEIGHT }, SCALE, ctx);
     }
 }
-PalpableCatchHitObject.prototype.predraw2 = function (SCREENSHEIGHT, SCALE) {
-    let dt = this.time;
+PalpableCatchHitObject.prototype.predraw2 = function (SCREENSHEIGHT, SCALE, offset) {
+    // 去除offset
+    let dt = this.time - offset;
     let real_x = this.x;
     let real_y = SCREENSHEIGHT - dt * Beatmap.HEIGHT / this.beatmap.approachTime;
     let colIndex = 1;
