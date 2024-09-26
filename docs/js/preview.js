@@ -79,9 +79,8 @@ Preview.prototype.at = function (time) {
 };
 
 Preview.prototype.output = function () {
-    let canvas2 = document.createElement('canvas');
     let SCALE = 0.2;
-    this.beatmap.draw2(SCALE, canvas2);
+    let canvas2 = this.beatmap.draw2(SCALE);
     canvas2.toBlob(function (blob) {
         // 创建下载链接
         let link = document.createElement("a");

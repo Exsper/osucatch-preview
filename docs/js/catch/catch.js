@@ -337,9 +337,12 @@ Catch.prototype.draw = function (time, ctx) {
         catchHitObject.draw(time, ctx);
     }
 };
-Catch.prototype.draw2 = function (SCALE, canvas2) {
+Catch.prototype.draw2 = function (SCALE) {
     // 初定每一列20个屏幕大小，不够换列
     let SCREENSHEIGHT = 20 * Beatmap.HEIGHT;
+    // 20px黑边
+    const BORDER_WIDTH = 20 + 10;
+    const BORDER_HEIGHT = 20;
     let objs = [];
     // 分析小节线
     let barLines = [];
@@ -391,9 +394,10 @@ Catch.prototype.draw2 = function (SCALE, canvas2) {
         height = objs.reduce((acc, cur) => Math.max(acc.y, cur.y), Number.MIN_SAFE_INTEGER) * SCALE;
     }
     else {
-        width = (Beatmap.WIDTH * SCALE + 20) * cols;
-        height = SCREENSHEIGHT * SCALE;
+        width = (Beatmap.WIDTH * SCALE + 20) * cols - 20 + 2 * BORDER_WIDTH;
+        height = SCREENSHEIGHT * SCALE + 2 * BORDER_HEIGHT;
     }
+    let canvas2 = document.createElement('canvas');
     canvas2.width = width;
     canvas2.height = height;
     let ctx2 = canvas2.getContext('2d');
@@ -403,11 +407,19 @@ Catch.prototype.draw2 = function (SCALE, canvas2) {
     ctx2.fill();
     ctx2.restore();
     // 画分界线
+    ctx2.save();
+    ctx2.fillStyle = "white";
+    ctx2.fillRect(BORDER_WIDTH - 11, 0, 2, height);
+    ctx2.restore();
+    ctx2.save();
+    ctx2.fillStyle = "white";
+    ctx2.fillRect(width - BORDER_WIDTH + 11, 0, 2, height);
+    ctx2.restore();
     if (cols > 1) {
         for (let i = 1; i < cols; i++) {
             ctx2.save();
             ctx2.fillStyle = "white";
-            ctx2.fillRect((Beatmap.WIDTH + 20 / SCALE) * i * SCALE - 11, 0, 2, height);
+            ctx2.fillRect((Beatmap.WIDTH + 20 / SCALE) * i * SCALE - 11 + BORDER_WIDTH, 0, 2, height);
             ctx2.restore();
         }
     }
@@ -427,6 +439,10 @@ Catch.prototype.draw2 = function (SCALE, canvas2) {
         real_x_1 *= SCALE;
         real_x_2 *= SCALE;
         real_y *= SCALE;
+        // 加上边缘
+        real_x_1 += BORDER_WIDTH;
+        real_x_2 += BORDER_WIDTH;
+        real_y += BORDER_HEIGHT;
 
         ctx2.save();
         ctx2.beginPath();
@@ -442,12 +458,64 @@ Catch.prototype.draw2 = function (SCALE, canvas2) {
         ctx2.textAlign = "end";
         ctx2.strokeText((barLines[i] / 1000).toFixed(1), real_x_2, real_y);
         ctx2.restore();
+
+        
+        //将距离上下边缘比较近的复制一份到上下一次
+        if (real_x_1 > (2 * BORDER_WIDTH) && real_y > (height - BORDER_HEIGHT - 5)) {
+            // 靠近下边缘，在上一列的上边缘再画一条
+            real_x_1 = (Beatmap.WIDTH + 20 / SCALE) * (colIndex - 2);
+            real_x_2 = real_x_1 + Beatmap.WIDTH;
+            real_x_1 *= SCALE;
+            real_x_2 *= SCALE;
+            real_x_1 += BORDER_WIDTH;
+            real_x_2 += BORDER_WIDTH;
+            real_y = BORDER_HEIGHT;
+            ctx2.save();
+            ctx2.beginPath();
+            ctx2.moveTo(real_x_1, real_y);
+            ctx2.lineTo(real_x_2, real_y);
+            ctx2.strokeStyle = '#fff';
+            ctx2.lineWidth = 1;
+            ctx2.stroke();
+            // 添加文字
+            ctx2.strokeStyle = 'pink';
+            ctx2.font = "normal 16px 'Segoe UI'";
+            ctx2.textBaseline = "middle";
+            ctx2.textAlign = "end";
+            ctx2.strokeText((barLines[i] / 1000).toFixed(1), real_x_2, real_y);
+            ctx2.restore();
+        }
+        else if (real_x_2 < (width - 2 * BORDER_WIDTH) && real_y < (BORDER_HEIGHT + 5)) {
+            // 靠近上边缘，在下一列的下边缘再画一条
+            real_x_1 = (Beatmap.WIDTH + 20 / SCALE) * colIndex;
+            real_x_2 = real_x_1 + Beatmap.WIDTH;
+            real_x_1 *= SCALE;
+            real_x_2 *= SCALE;
+            real_x_1 += BORDER_WIDTH;
+            real_x_2 += BORDER_WIDTH;
+            real_y = SCREENSHEIGHT * SCALE + BORDER_HEIGHT;
+            ctx2.save();
+            ctx2.beginPath();
+            ctx2.moveTo(real_x_1, real_y);
+            ctx2.lineTo(real_x_2, real_y);
+            ctx2.strokeStyle = '#fff';
+            ctx2.lineWidth = 1;
+            ctx2.stroke();
+            // 添加文字
+            ctx2.strokeStyle = 'pink';
+            ctx2.font = "normal 16px 'Segoe UI'";
+            ctx2.textBaseline = "middle";
+            ctx2.textAlign = "end";
+            ctx2.strokeText((barLines[i] / 1000).toFixed(1), real_x_2, real_y);
+            ctx2.restore();
+        }
+
     }
 
     for (let i = 0; i < this.fullCatchObjects.length; i++) {
-        this.fullCatchObjects[i].draw2(objs[i], SCALE, ctx2);
+        this.fullCatchObjects[i].draw2(objs[i], SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
     }
-
+    return canvas2;
 };
 
 Catch.prototype.processBG = function (ctx) {

@@ -1,5 +1,4 @@
-function PalpableCatchHitObject(data, beatmap)
-{
+function PalpableCatchHitObject(data, beatmap) {
     this.beatmap = beatmap;
     this.type = data.type;
     this.time = data.time;
@@ -8,22 +7,21 @@ function PalpableCatchHitObject(data, beatmap)
     this.radius = data.radius;
     this.hyperDash = false;
 }
-PalpableCatchHitObject.prototype.draw = function(time, ctx)
-{
+PalpableCatchHitObject.prototype.draw = function (time, ctx) {
     var dt = this.time - time;
     if (dt >= -this.beatmap.FALLOUT_TIME) {
-        if (this.type === "Banana") this.drawBanana({x: this.x, y: (1 - dt / this.beatmap.approachTime) * Beatmap.HEIGHT - this.beatmap.CATCHER_HEIGHT}, ctx);
+        if (this.type === "Banana") this.drawBanana({ x: this.x, y: (1 - dt / this.beatmap.approachTime) * Beatmap.HEIGHT - this.beatmap.CATCHER_HEIGHT }, ctx);
         else {
-            if (this.hyperDash) this.drawDashCircle({x: this.x, y: (1 - dt / this.beatmap.approachTime) * Beatmap.HEIGHT - this.beatmap.CATCHER_HEIGHT}, ctx);
-            this.drawCircle({x: this.x, y: (1 - dt / this.beatmap.approachTime) * Beatmap.HEIGHT - this.beatmap.CATCHER_HEIGHT}, ctx);
+            if (this.hyperDash) this.drawDashCircle({ x: this.x, y: (1 - dt / this.beatmap.approachTime) * Beatmap.HEIGHT - this.beatmap.CATCHER_HEIGHT }, ctx);
+            this.drawCircle({ x: this.x, y: (1 - dt / this.beatmap.approachTime) * Beatmap.HEIGHT - this.beatmap.CATCHER_HEIGHT }, ctx);
         }
     }
 };
-PalpableCatchHitObject.prototype.draw2 = function(obj, SCALE, ctx) {
-    if (obj.type === "Banana") this.drawBanana2({ x: obj.x, y: obj.y }, SCALE, ctx);
+PalpableCatchHitObject.prototype.draw2 = function (obj, SCALE, ctx, BORDER_WIDTH, BORDER_HEIGHT) {
+    if (obj.type === "Banana") this.drawBanana2({ x: obj.x + BORDER_WIDTH, y: obj.y + BORDER_HEIGHT }, SCALE, ctx);
     else {
-        if (this.hyperDash) this.drawDashCircle2({ x: obj.x, y: obj.y }, SCALE, ctx);
-        this.drawCircle2({ x: obj.x, y: obj.y }, SCALE, ctx);
+        if (this.hyperDash) this.drawDashCircle2({ x: obj.x + BORDER_WIDTH, y: obj.y + BORDER_HEIGHT }, SCALE, ctx);
+        this.drawCircle2({ x: obj.x + BORDER_WIDTH, y: obj.y + BORDER_HEIGHT }, SCALE, ctx);
     }
 }
 PalpableCatchHitObject.prototype.predraw2 = function (SCREENSHEIGHT, SCALE) {
@@ -42,8 +40,7 @@ PalpableCatchHitObject.prototype.predraw2 = function (SCREENSHEIGHT, SCALE) {
     real_y *= SCALE;
     return { type: this.type, x: real_x, y: real_y, col: colIndex };
 }
-PalpableCatchHitObject.prototype.drawCircle = function(position, ctx)
-{
+PalpableCatchHitObject.prototype.drawCircle = function (position, ctx) {
     ctx.save();
     ctx.beginPath();
     ctx.arc(position.x, position.y, this.radius, -Math.PI, Math.PI);
@@ -52,8 +49,7 @@ PalpableCatchHitObject.prototype.drawCircle = function(position, ctx)
     ctx.fill();
     ctx.restore();
 };
-PalpableCatchHitObject.prototype.drawCircle2 = function(position, SCALE, ctx)
-{
+PalpableCatchHitObject.prototype.drawCircle2 = function (position, SCALE, ctx) {
     ctx.save();
     ctx.beginPath();
     ctx.arc(position.x, position.y, this.radius * SCALE, -Math.PI, Math.PI);
@@ -62,8 +58,7 @@ PalpableCatchHitObject.prototype.drawCircle2 = function(position, SCALE, ctx)
     ctx.fill();
     ctx.restore();
 };
-PalpableCatchHitObject.prototype.drawBanana = function(position, ctx)
-{
+PalpableCatchHitObject.prototype.drawBanana = function (position, ctx) {
     ctx.save();
     ctx.beginPath();
     ctx.shadowBlur = 0;
@@ -73,8 +68,7 @@ PalpableCatchHitObject.prototype.drawBanana = function(position, ctx)
     ctx.stroke();
     ctx.restore();
 };
-PalpableCatchHitObject.prototype.drawBanana2 = function(position, SCALE, ctx)
-{
+PalpableCatchHitObject.prototype.drawBanana2 = function (position, SCALE, ctx) {
     ctx.save();
     ctx.beginPath();
     ctx.shadowBlur = 0;
@@ -84,8 +78,7 @@ PalpableCatchHitObject.prototype.drawBanana2 = function(position, SCALE, ctx)
     ctx.stroke();
     ctx.restore();
 };
-PalpableCatchHitObject.prototype.drawDashCircle = function(position, ctx)
-{
+PalpableCatchHitObject.prototype.drawDashCircle = function (position, ctx) {
     ctx.save();
     ctx.beginPath();
     ctx.shadowBlur = 0;
@@ -95,8 +88,7 @@ PalpableCatchHitObject.prototype.drawDashCircle = function(position, ctx)
     ctx.stroke();
     ctx.restore();
 };
-PalpableCatchHitObject.prototype.drawDashCircle2 = function(position, SCALE, ctx)
-{
+PalpableCatchHitObject.prototype.drawDashCircle2 = function (position, SCALE, ctx) {
     ctx.save();
     ctx.beginPath();
     ctx.shadowBlur = 0;
