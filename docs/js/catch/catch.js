@@ -398,8 +398,8 @@ Catch.prototype.draw2 = function (SCALE) {
     let width;
     let height;
     if (cols <= 1) {
-        width = Beatmap.WIDTH * SCALE;
-        height = objs.reduce((acc, cur) => Math.max(acc.y, cur.y), Number.MIN_SAFE_INTEGER) * SCALE;
+        width = Beatmap.WIDTH * SCALE + 2 * BORDER_WIDTH;
+        height = objs.reduce((acc, cur) => Math.max(acc, cur.y), Number.MIN_SAFE_INTEGER) + 2 * BORDER_HEIGHT;
     }
     else {
         width = (Beatmap.WIDTH * SCALE + 20) * cols - 20 + 2 * BORDER_WIDTH;
