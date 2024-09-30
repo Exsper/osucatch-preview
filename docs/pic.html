@@ -44,10 +44,27 @@
             var beatmapID = location.hash.split('#')[1];
             if (!beatmapID) beatmapID = 75;
             var sindex = beatmapID.toString().indexOf("-");
-            var mod = "";
+            let mods = [];
+            let HRorEZ = {
+                HR: false,
+                EZ: false
+            }
+            let DTorHT = {
+                DT: false,
+                HT: false
+            }
             if (sindex >= 0) {
-                mod = beatmapID.substring(sindex + 1).toLocaleUpperCase();
-                if (!["HR", "EZ"].includes(mod)) mod = "";
+                let modsString = beatmapID.substring(sindex + 1).toLocaleUpperCase();
+                let i = 0;
+                const length = modsString.length;
+                while (i + 2 <= length) {
+                    const s = modsString.substring(i, i + 2);
+                    if (s === "NC" || s === "DT") DTorHT.DT = true;
+                    else if (s === "HT") DTorHT.HT = true;
+                    else if (s === "EZ") HRorEZ.EZ = true;
+                    else if (s === "HR") HRorEZ.HR = true;
+                    i += 2;
+                }
                 beatmapID = beatmapID.substring(0, sindex);
                 if (isNaN(beatmapID)) beatmapID = 75;
             }
@@ -61,17 +78,14 @@
                     return;
                 }
 
-                let mods = {
-                    HR: false,
-                    EZ: false
-                }
-                if (mod) mods[mod] = true;
-
                 try {
-                    self.beatmap = Beatmap.parse(osufile, mods);
+                    self.beatmap = Beatmap.parse(osufile, HRorEZ);
                     let SCALE = 0.2;
+                    let SPEED = 1;
+                    if (DTorHT.DT) SPEED *= 1.5;
+                    if (DTorHT.HT) SPEED *= 0.75;
                     /**@type {HTMLCanvasElement} */
-                    let canvas2 = self.beatmap.draw2(SCALE);
+                    let canvas2 = self.beatmap.draw2(SCALE, SPEED);
                     let img = canvas2.toDataURL();
                     document.getElementById("img").src = img;
                 }
