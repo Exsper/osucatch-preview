@@ -370,7 +370,7 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1) {
     for (let i = 0; i < barLines.length; i++) {
         barLines[i] -= offset;
     }
-    
+
     let timingLines = [];
     for (let i = 0; i < this.TimingPoints.length; i++) {
         // 绿线在ctb无关紧要，不用加
@@ -561,8 +561,23 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1) {
         ctx2.restore();
     }
 
+    let combo = 0;
+    let lastCombo = 0;
+    let comboSplit = 20;
+    // 按总物件数/时间控制密度
+    let totalTime = this.fullCatchObjects[this.fullCatchObjects.length - 1].time - this.fullCatchObjects[0].time;
+    if (this.fullCatchObjects.length * 1000 / totalTime > 2) comboSplit = Math.ceil(this.fullCatchObjects.length * 1000 / totalTime) * 10;
+    // 按0.2*位数修约
+    let roundBy = Math.pow(10, comboSplit.toString().length) * 0.2;
+    comboSplit = Math.round(comboSplit / roundBy) * roundBy;
     for (let i = 0; i < this.fullCatchObjects.length; i++) {
-        this.fullCatchObjects[i].draw2(objs[i], SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
+        let showCombo = null;
+        if (objs[i].type === "Fruit" || objs[i].type === "Droplet") {
+            combo += 1;
+        }
+        if (combo > lastCombo && combo > 0 && combo % comboSplit === 0) showCombo = combo;
+        this.fullCatchObjects[i].draw2(objs[i], SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, showCombo);
+        lastCombo = combo;
     }
     return canvas2;
 };

@@ -17,12 +17,13 @@ PalpableCatchHitObject.prototype.draw = function (time, ctx) {
         }
     }
 };
-PalpableCatchHitObject.prototype.draw2 = function (obj, SCALE, ctx, BORDER_WIDTH, BORDER_HEIGHT) {
+PalpableCatchHitObject.prototype.draw2 = function (obj, SCALE, ctx, BORDER_WIDTH, BORDER_HEIGHT, combo = null) {
     if (obj.type === "Banana") this.drawBanana2({ x: obj.x + BORDER_WIDTH, y: obj.y + BORDER_HEIGHT }, SCALE, ctx);
     else {
         if (this.hyperDash) this.drawDashCircle2({ x: obj.x + BORDER_WIDTH, y: obj.y + BORDER_HEIGHT }, SCALE, ctx);
         this.drawCircle2({ x: obj.x + BORDER_WIDTH, y: obj.y + BORDER_HEIGHT }, SCALE, ctx);
     }
+    if (combo) this.drawCombo2({ x: obj.x + BORDER_WIDTH, y: obj.y + BORDER_HEIGHT }, SCALE, combo, ctx);
 }
 PalpableCatchHitObject.prototype.predraw2 = function (SCREENSHEIGHT, SCALE, offset) {
     // 去除offset
@@ -66,6 +67,15 @@ PalpableCatchHitObject.prototype.drawCircle2 = function (position, SCALE, ctx) {
     ctx.lineWidth = this.radius * 0.2 * SCALE;
     ctx.strokeStyle = 'white';
     ctx.stroke();
+    ctx.restore();
+};
+PalpableCatchHitObject.prototype.drawCombo2 = function (position, SCALE, combo, ctx) {
+    ctx.save();
+    ctx.fillStyle = 'lightblue';
+    ctx.font = "normal 16px 'Segoe UI'";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "start";
+    ctx.fillText("x" + combo, position.x + this.radius * SCALE * 2, position.y);
     ctx.restore();
 };
 PalpableCatchHitObject.prototype.drawBanana = function (position, ctx) {
