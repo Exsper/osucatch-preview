@@ -88,6 +88,7 @@
                     let canvas2 = self.beatmap.draw2(SCALE, SPEED);
                     let img = canvas2.toDataURL();
                     document.getElementById("img").src = img;
+                    document.title = self.beatmap.toString();
                 }
                 catch (e) {
                     console.log(e);
