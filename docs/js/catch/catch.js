@@ -473,7 +473,7 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1) {
         let real_y_1 = BORDER_HEIGHT + SCREENSHEIGHT * (1 - kiaiTimeDrawSpans[i].end) * SCALE;
         let real_y_2 = BORDER_HEIGHT + SCREENSHEIGHT * (1 - kiaiTimeDrawSpans[i].start) * SCALE;
         ctx2.save();
-        ctx2.fillStyle = "#222";
+        ctx2.fillStyle = "#161616";
         ctx2.fillRect(real_x_1, real_y_1, Beatmap.WIDTH * SCALE + 2 * COLMARGIN, real_y_2 - real_y_1);
         ctx2.restore();
     }
