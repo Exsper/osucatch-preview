@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="robots" content="nofollow, noindex, noarchive">
-    <title>ctb图片预览 网址后加#bid（-EZ/HR/DT/HT）</title>
+    <title>请确保浏览器开启跨域</title>
 </head>
 
 <body class="h">
@@ -68,7 +68,7 @@
                 beatmapID = beatmapID.substring(0, sindex);
                 if (isNaN(beatmapID)) beatmapID = 75;
             }
-            var osuFileUrl = "https://osu.direct/api/osu/" + beatmapID;
+            var osuFileUrl = "https://osu.ppy.sh/osu/" + beatmapID;
             !async function () {
                 var self = this;
                 let osufile;
@@ -78,12 +78,11 @@
                 }
                 catch (e) {
                     console.log(e);
-                    document.title = "从osu.direct获取谱面文件失败";
+                    document.title = "从osu官网获取谱面文件失败，请检查浏览器是否允许跨域";
                 }
                 if (!osufile) {
                     return;
                 }
-
                 try {
                     self.beatmap = Beatmap.parse(osufile, HRorEZ);
                     let SCALE = 0.2;
