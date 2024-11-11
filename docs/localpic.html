@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="nofollow, noindex, noarchive">
+    <title>ctb图片预览 导入本地文件</title>
+</head>
+
+<body class="h">
+    <div>
+        <span>导入谱面文件: </span>
+        <input type="file" id="fileInput">
+        <span>EZ/HR: </span>
+        <select size="1" id="select1">
+            <option value="" selected> </option>
+            <option value="EZ">EZ</option>
+            <option value="HR">HR</option>
+        </select>
+        <span>DT/HT: </span>
+        <select size="1" id="select2">
+            <option value="" selected> </option>
+            <option value="DT">DT</option>
+            <option value="HT">HT</option>
+        </select>
+        <span id="msg"></span>
+    </div>
+    <img id="img"></img>
+
+    <script src="js/util.js"></script>
+
+    <script src="js/beatmap/beatmap.js"></script>
+    <script src="js/beatmap/timingpoint.js"></script>
+    <script src="js/beatmap/hitobject.js"></script>
+    <script src="js/beatmap/point.js"></script>
+    <script src="js/beatmap/scroll.js"></script>
+
+    <script src="js/standard/hitcircle.js"></script>
+    <script src="js/standard/slider.js"></script>
+    <script src="js/standard/curve/curve.js"></script>
+    <script src="js/standard/curve/equaldistancemulticurve.js"></script>
+    <script src="js/standard/curve/linearbezier.js"></script>
+    <script src="js/standard/curve/catmullcurve.js"></script>
+    <script src="js/standard/curve/curvetype.js"></script>
+    <script src="js/standard/curve/bezier2.js"></script>
+    <script src="js/standard/curve/centripetalcatmullrom.js"></script>
+    <script src="js/standard/curve/circumstancedcircle.js"></script>
+    <script src="js/standard/spinner.js"></script>
+
+    <script src="js/catch/LegacyRandom.js"></script>
+    <script src="js/catch/catch.js"></script>
+    <script src="js/catch/fruit.js"></script>
+    <script src="js/catch/bananashower.js"></script>
+    <script src="js/catch/juicestream.js"></script>
+    <script src="js/catch/PalpableCatchHitObject.js"></script>
+
+    <script>
+
+        const createImg = function (osufile, HRorEZ, DTorHT) {
+            !async function () {
+                var self = this;
+                try {
+                    self.beatmap = Beatmap.parse(osufile, HRorEZ);
+                    let SCALE = 0.2;
+                    let SPEED = 1;
+                    if (DTorHT.DT) SPEED *= 1.5;
+                    if (DTorHT.HT) SPEED *= 0.75;
+                    /**@type {HTMLCanvasElement} */
+                    let canvas2 = self.beatmap.draw2(SCALE, SPEED);
+                    let img = canvas2.toDataURL();
+                    document.getElementById("img").src = img;
+                    document.title = self.beatmap.toString();
+                    document.getElementById("msg").innerText = self.beatmap.toString();
+                }
+                catch (e) {
+                    console.log(e);
+                    document.title = e;
+                    document.getElementById("msg").innerText = e;
+                }
+
+            }();
+        }
+
+
+        // 使用谱面物件颜色
+        window.localStorage.setItem("DefaultColor", 0);
+        // 忽略谱面物件颜色
+        // window.localStorage.setItem("DefaultColor", 1);
+
+        // NewCombo换色
+        window.localStorage.setItem("ColorChange", 0);
+        // 每个物件换色
+        // window.localStorage.setItem("ColorChange", 1);
+
+        // 不显示推荐香蕉路线
+        window.localStorage.setItem("WhiteBanana", 0);
+        // 白色显示推荐香蕉路线
+        // window.localStorage.setItem("WhiteBanana", 1);
+
+        var fileInput = document.querySelector('#fileInput');
+        fileInput.onchange = function () {
+            let HRorEZ = {
+                HR: false,
+                EZ: false
+            }
+            let DTorHT = {
+                DT: false,
+                HT: false
+            }
+            let s1 = document.getElementById("select1");
+            if (s1.value) {
+                if (s1.value === "EZ") HRorEZ.EZ = true;
+                else if (s1.value === "HR") HRorEZ.HR = true;
+            }
+            let s2 = document.getElementById("select2");
+            if (s2.value) {
+                if (s2.value === "DT") HRorEZ.DT = true;
+                else if (s2.value === "HT") HRorEZ.HT = true;
+            }
+
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = function () {
+                createImg(reader.result, HRorEZ, DTorHT);
+            };
+        };
+
+
+    </script>
+</body>
+
+</html>
