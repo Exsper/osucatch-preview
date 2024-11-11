@@ -56,9 +56,29 @@
     <script src="js/catch/PalpableCatchHitObject.js"></script>
 
     <script>
+        var currentBeatmap = null;
 
-        const createImg = function (osufile, HRorEZ, DTorHT) {
+        const createImg = function (osufile) {
             !async function () {
+                let HRorEZ = {
+                    HR: false,
+                    EZ: false
+                }
+                let DTorHT = {
+                    DT: false,
+                    HT: false
+                }
+                let s1 = document.getElementById("select1");
+                if (s1.value) {
+                    if (s1.value === "EZ") HRorEZ.EZ = true;
+                    else if (s1.value === "HR") HRorEZ.HR = true;
+                }
+                let s2 = document.getElementById("select2");
+                if (s2.value) {
+                    if (s2.value === "DT") DTorHT.DT = true;
+                    else if (s2.value === "HT") DTorHT.HT = true;
+                }
+
                 var self = this;
                 try {
                     self.beatmap = Beatmap.parse(osufile, HRorEZ);
@@ -72,8 +92,10 @@
                     document.getElementById("img").src = img;
                     document.title = self.beatmap.toString();
                     document.getElementById("msg").innerText = self.beatmap.toString();
+                    currentBeatmap = osufile;
                 }
                 catch (e) {
+                    currentBeatmap = null;
                     console.log(e);
                     document.title = e;
                     document.getElementById("msg").innerText = e;
@@ -100,33 +122,22 @@
 
         var fileInput = document.querySelector('#fileInput');
         fileInput.onchange = function () {
-            let HRorEZ = {
-                HR: false,
-                EZ: false
-            }
-            let DTorHT = {
-                DT: false,
-                HT: false
-            }
-            let s1 = document.getElementById("select1");
-            if (s1.value) {
-                if (s1.value === "EZ") HRorEZ.EZ = true;
-                else if (s1.value === "HR") HRorEZ.HR = true;
-            }
-            let s2 = document.getElementById("select2");
-            if (s2.value) {
-                if (s2.value === "DT") HRorEZ.DT = true;
-                else if (s2.value === "HT") HRorEZ.HT = true;
-            }
-
             var file = this.files[0];
             var reader = new FileReader();
             reader.readAsText(file);
             reader.onload = function () {
-                createImg(reader.result, HRorEZ, DTorHT);
+                createImg(reader.result);
             };
         };
 
+        let s1 = document.getElementById("select1");
+        s1.onchange = function () {
+            if (currentBeatmap !== null) createImg(currentBeatmap);
+        }
+        let s2 = document.getElementById("select2");
+        s2.onchange = function () {
+            if (currentBeatmap !== null) createImg(currentBeatmap);
+        }
 
     </script>
 </body>
