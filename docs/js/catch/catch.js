@@ -657,11 +657,13 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
         _objs.map((_obj) => {
             if (_obj.y > SCREENSHEIGHT * SCALE - 5) {
                 // note靠近下边缘，在上一列的上边缘再画一个
-                this.fullCatchObjects[_obj.index].draw2({time: _obj.time, type: _obj.type, x: _obj.x - (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: 0, col: _obj.col - 1}, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
+                if (params.showDistance) this.fullCatchObjects[_obj.index].draw2({time: _obj.time, type: _obj.type, x: _obj.x - (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: 0, col: _obj.col - 1}, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, this.fullCatchObjects[_obj.index].XDistToNext);
+                else this.fullCatchObjects[_obj.index].draw2({time: _obj.time, type: _obj.type, x: _obj.x - (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: 0, col: _obj.col - 1}, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
             }
             else if (_obj.y < 5) {
                 // note靠近上边缘，在下一列的下边缘再画一个
-                this.fullCatchObjects[_obj.index].draw2({time: _obj.time, type: _obj.type, x: _obj.x + (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: SCREENSHEIGHT * SCALE, col: _obj.col + 1}, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
+                if (params.showDistance) this.fullCatchObjects[_obj.index].draw2({time: _obj.time, type: _obj.type, x: _obj.x + (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: SCREENSHEIGHT * SCALE, col: _obj.col + 1}, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT,  this.fullCatchObjects[_obj.index].XDistToNext);
+                else this.fullCatchObjects[_obj.index].draw2({time: _obj.time, type: _obj.type, x: _obj.x + (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: SCREENSHEIGHT * SCALE, col: _obj.col + 1}, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
             }
         });
     });
