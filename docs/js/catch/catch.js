@@ -263,6 +263,9 @@ function Catch(osu, mods) {
         let thisDirection = nextObject.x > currentObject.x ? 1 : -1;
         let timeToNext = nextObject.time - currentObject.time - 1000 / 60 / 4; // 1/4th of a frame of grace time, taken from osu-stable
         let distanceToNext = Math.abs(nextObject.x - currentObject.x) - (lastDirection == thisDirection ? lastExcess : this.halfCatcherWidth);
+        let nextTimingPoint = this.timingPointAt(nextObject.time);
+        currentObject.XDistToNext = Math.abs(nextObject.x - currentObject.x) / (this.SliderMultiplier * 100) / ((nextObject.time - currentObject.time) / nextTimingPoint.beatLength);
+        if (currentObject.XDistToNext > 0) currentObject.XDistToNext = currentObject.XDistToNext.toFixed(2);
         let distanceToHyper = timeToNext * this.BASE_DASH_SPEED - distanceToNext;
 
         if (distanceToHyper < 0) {
@@ -341,8 +344,9 @@ Catch.prototype.draw = function (time, ctx) {
 /**
  * @param {number} SCALE 缩放大小（0.2=缩放为1/5）
  * @param {number} SPEED 播放速度 DT=1.5 HT=0.75 在ctb不影响谱面，只影响时间和BPM标注
+ * @param {{showDistance: boolean}} params 其他参数
  */
-Catch.prototype.draw2 = function (SCALE, SPEED = 1) {
+Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
     // 初定每一列20个屏幕大小，不够换列
     let SCREENSHEIGHT = 20 * Beatmap.HEIGHT;
     // 20px黑边
@@ -634,7 +638,12 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1) {
         if (objs[i].type === "Fruit" || objs[i].type === "Droplet") {
             combo += 1;
         }
-        if (combo > lastCombo && combo > 0 && combo % comboSplit === 0) showCombo = combo;
+        // 借用combo位显示距离，省事！
+        if (params.showDistance) {
+            if (objs[i].type === "Fruit" || objs[i].type === "Droplet") showCombo = this.fullCatchObjects[i].XDistToNext;
+        }
+
+        else if (combo > lastCombo && combo > 0 && combo % comboSplit === 0) showCombo = combo;
         this.fullCatchObjects[i].draw2(objs[i], SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, showCombo);
         lastCombo = combo;
     }

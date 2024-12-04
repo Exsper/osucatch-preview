@@ -24,6 +24,7 @@
             <option value="DT">DT</option>
             <option value="HT">HT</option>
         </select>
+        <input type="checkbox" id="showdistance" /> <label for="showdistance">标注到下个水果的X距离 </label>
         <span id="msg"></span>
     </div>
     <img id="img"></img>
@@ -79,6 +80,12 @@
                     else if (s2.value === "HT") DTorHT.HT = true;
                 }
 
+                let params = {};
+                let showDistance = document.getElementById("showdistance");
+                if (showDistance.checked) {
+                    params.showDistance = true;
+                }
+
                 var self = this;
                 try {
                     self.beatmap = Beatmap.parse(osufile, HRorEZ);
@@ -87,7 +94,7 @@
                     if (DTorHT.DT) SPEED *= 1.5;
                     if (DTorHT.HT) SPEED *= 0.75;
                     /**@type {HTMLCanvasElement} */
-                    let canvas2 = self.beatmap.draw2(SCALE, SPEED);
+                    let canvas2 = self.beatmap.draw2(SCALE, SPEED, params);
                     let img = canvas2.toDataURL();
                     document.getElementById("img").src = img;
                     document.title = self.beatmap.toString();
@@ -136,6 +143,11 @@
         }
         let s2 = document.getElementById("select2");
         s2.onchange = function () {
+            if (currentBeatmap !== null) createImg(currentBeatmap);
+        }
+
+        let showDistance = document.getElementById("showdistance");
+        showDistance.onchange = function () {
             if (currentBeatmap !== null) createImg(currentBeatmap);
         }
 

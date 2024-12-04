@@ -6,6 +6,7 @@ function PalpableCatchHitObject(data, beatmap) {
     this.color = data.color;
     this.radius = data.radius;
     this.hyperDash = false;
+    this.XDistToNext = 1;
 }
 PalpableCatchHitObject.prototype.draw = function (time, ctx) {
     var dt = this.time - time;
