@@ -72,14 +72,17 @@ PalpableCatchHitObject.prototype.drawCircle2 = function (position, SCALE, ctx) {
     ctx.restore();
 };
 PalpableCatchHitObject.prototype.drawCombo2 = function (position, SCALE, combo, ctx) {
+    // 用一块黑色遮挡
     ctx.save();
-    ctx.fillStyle = 'blue';
-    ctx.strokeStyle = 'lightblue'
-    ctx.lineWidth = 2;
+    ctx.fillStyle = "black";
+    ctx.fillRect(position.x + this.radius * SCALE * 2, position.y - 8, 40, 14);
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = 'lightblue';
     ctx.font = "normal 16px 'Segoe UI'";
     ctx.textBaseline = "middle";
     ctx.textAlign = "start";
-    ctx.strokeText("x" + combo, position.x + this.radius * SCALE * 2, position.y);
     ctx.fillText("x" + combo, position.x + this.radius * SCALE * 2, position.y);
     ctx.restore();
 };
