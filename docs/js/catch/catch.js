@@ -265,7 +265,8 @@ function Catch(osu, mods) {
         let distanceToNext = Math.abs(nextObject.x - currentObject.x) - (lastDirection == thisDirection ? lastExcess : this.halfCatcherWidth);
         let nextTimingPoint = this.timingPointAt(nextObject.time);
         currentObject.XDistToNext = Math.abs(nextObject.x - currentObject.x) / (this.SliderMultiplier * 100) / ((nextObject.time - currentObject.time) / nextTimingPoint.beatLength);
-        if (currentObject.XDistToNext > 0) currentObject.XDistToNext = currentObject.XDistToNext.toFixed(2);
+        if (currentObject.XDistToNext > 0.01) currentObject.XDistToNext = currentObject.XDistToNext.toFixed(2);
+        else currentObject.XDistToNext = null;
         let distanceToHyper = timeToNext * this.BASE_DASH_SPEED - distanceToNext;
 
         if (distanceToHyper < 0) {
