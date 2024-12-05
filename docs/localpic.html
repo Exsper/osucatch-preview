@@ -151,6 +151,20 @@
             if (currentBeatmap !== null) createImg(currentBeatmap);
         }
 
+        document.ondragover = function (e) {
+            e.preventDefault();
+        };
+        document.ondrop = function (e) {
+            e.preventDefault();
+            var list = e.dataTransfer.files;
+            var file = list[0];
+            var reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = function () {
+                createImg(reader.result);
+            };
+        };
+
     </script>
 </body>
 
