@@ -24,7 +24,10 @@
             <option value="DT">DT</option>
             <option value="HT">HT</option>
         </select>
-        <input type="checkbox" id="showdistance" /> <label for="showdistance">标注到下个水果的X距离 </label>
+        <input type="checkbox" id="showdistance" /> <label for="showdistance">标注到下个水果的X距离</label>
+        <span> 范围： </span> <input type="number" id="distancestart" value="0" style="width: 40px;" />
+        <span> - </span>
+        <input type="number" id="distanceend" value="100" style="width: 40px;" />
         <span id="msg"></span>
     </div>
     <img id="img"></img>
@@ -82,8 +85,12 @@
 
                 let params = {};
                 let showDistance = document.getElementById("showdistance");
+                let distanceStart = document.getElementById("distancestart");
+                let distanceEnd = document.getElementById("distanceend");
                 if (showDistance.checked) {
                     params.showDistance = true;
+                    params.distanceStart = distanceStart.value || 0;
+                    params.distanceEnd = distanceEnd.value || Infinity;
                 }
 
                 var self = this;
@@ -148,6 +155,15 @@
 
         let showDistance = document.getElementById("showdistance");
         showDistance.onchange = function () {
+            if (currentBeatmap !== null) createImg(currentBeatmap);
+        }
+
+        let distanceStart = document.getElementById("distancestart");
+        distanceStart.onchange = function () {
+            if (currentBeatmap !== null) createImg(currentBeatmap);
+        }
+        let distanceEnd = document.getElementById("distanceend");
+        distanceEnd.onchange = function () {
             if (currentBeatmap !== null) createImg(currentBeatmap);
         }
 

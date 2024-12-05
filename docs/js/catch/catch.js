@@ -345,7 +345,7 @@ Catch.prototype.draw = function (time, ctx) {
 /**
  * @param {number} SCALE 缩放大小（0.2=缩放为1/5）
  * @param {number} SPEED 播放速度 DT=1.5 HT=0.75 在ctb不影响谱面，只影响时间和BPM标注
- * @param {{showDistance: boolean}} params 其他参数
+ * @param {{showDistance: boolean, distanceStart: number, distanceEnd: number}} params 其他参数
  */
 Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
     // 初定每一列20个屏幕大小，不够换列
@@ -668,7 +668,10 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
         }
         // 借用combo位显示距离，省事！
         if (params.showDistance) {
-            if (objs[i].type === "Fruit" || objs[i].type === "Droplet") showCombo = this.fullCatchObjects[i].XDistToNext;
+            if (objs[i].type === "Fruit" || objs[i].type === "Droplet") {
+                if (this.fullCatchObjects[i].XDistToNext >= params.distanceStart && this.fullCatchObjects[i].XDistToNext <= params.distanceEnd)
+                    showCombo = this.fullCatchObjects[i].XDistToNext;
+            }
         }
 
         else if (combo > lastCombo && combo > 0 && combo % comboSplit === 0) showCombo = combo;
