@@ -265,7 +265,7 @@ function Catch(osu, mods) {
         let distanceToNext = Math.abs(nextObject.x - currentObject.x) - (lastDirection == thisDirection ? lastExcess : this.halfCatcherWidth);
         let nextTimingPoint = this.timingPointAt(nextObject.time);
         currentObject.XDistToNext = Math.abs(nextObject.x - currentObject.x) / (this.SliderMultiplier * 100) / ((nextObject.time - currentObject.time) / nextTimingPoint.beatLength);
-        if (currentObject.XDistToNext > 0.01) currentObject.XDistToNext = currentObject.XDistToNext.toFixed(2);
+        if (currentObject.XDistToNext > 0.01) currentObject.XDistToNext = (currentObject.XDistToNext !== Infinity) ? parseFloat(currentObject.XDistToNext.toFixed(2)) : null;
         else currentObject.XDistToNext = null;
         let distanceToHyper = timeToNext * this.BASE_DASH_SPEED - distanceToNext;
 
@@ -381,6 +381,7 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
     let timingLines = [];
     let kiaiTimeSpans = [];
     let lastKiaiStart = -1;
+    let lastSV = 1;
     for (let i = 0; i < this.TimingPoints.length; i++) {
         if (lastKiaiStart >= 0) {
             if (!this.TimingPoints[i].kiai) {
@@ -391,9 +392,25 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
         else {
             if (this.TimingPoints[i].kiai) lastKiaiStart = this.TimingPoints[i].time - offset;
         }
-        // 绿线在ctb无关紧要，不用加
-        if (this.TimingPoints[i].parent) continue;
-        timingLines.push({ time: this.TimingPoints[i].time - offset, bpm: this.TimingPoints[i].bpm });
+        // 绿线在ctb无关紧要，正常模式不用加，标注距离时只加变化的
+        if (params.showDistance) {
+            if (this.TimingPoints[i].parent) {
+                if (Math.abs(this.TimingPoints[i].sliderVelocity - lastSV) < 0.001) {
+                    lastSV = this.TimingPoints[i].sliderVelocity;
+                    continue;
+                }
+                else {
+                    lastSV = this.TimingPoints[i].sliderVelocity;
+                    timingLines.push({ time: this.TimingPoints[i].time - offset, sv: this.TimingPoints[i].sliderVelocity });
+                    continue;
+                }
+            }
+            else timingLines.push({ time: this.TimingPoints[i].time - offset, bpm: this.TimingPoints[i].bpm });
+        }
+        else {
+            if (this.TimingPoints[i].parent) continue;
+            timingLines.push({ time: this.TimingPoints[i].time - offset, bpm: this.TimingPoints[i].bpm });
+        }
     }
     // 计算小节线普遍间隔
     let barLineDeltas = [];
@@ -613,15 +630,25 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
         ctx2.beginPath();
         ctx2.moveTo(real_x_1, real_y);
         ctx2.lineTo(real_x_2, real_y);
-        ctx2.strokeStyle = 'red';
+        if (timingLines[i].bpm) ctx2.strokeStyle = 'red';
+        else if (timingLines[i].sv) ctx2.strokeStyle = 'lightgreen';
         ctx2.lineWidth = 2;
         ctx2.stroke();
         // 添加文字
-        ctx2.fillStyle = 'red';
-        ctx2.font = "normal 16px 'Segoe UI'";
-        ctx2.textBaseline = "middle";
-        ctx2.textAlign = "start";
-        ctx2.fillText((timingLines[i].bpm * SPEED).toFixed(0), real_x_1 - 4, real_y - 10);
+        if (timingLines[i].bpm) {
+            ctx2.fillStyle = 'red';
+            ctx2.font = "normal 16px 'Segoe UI'";
+            ctx2.textBaseline = "middle";
+            ctx2.textAlign = "start";
+            ctx2.fillText((timingLines[i].bpm * SPEED).toFixed(0), real_x_1 - 4, real_y - 10);
+        }
+        else if (timingLines[i].sv) {
+            ctx2.fillStyle = 'lightgreen';
+            ctx2.font = "normal 16px 'Segoe UI'";
+            ctx2.textBaseline = "middle";
+            ctx2.textAlign = "start";
+            ctx2.fillText("x" + parseFloat(timingLines[i].sv.toFixed(2)), real_x_1 - 4, real_y - 10);
+        }
         ctx2.restore();
     }
 
@@ -657,13 +684,13 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
         _objs.map((_obj) => {
             if (_obj.y > SCREENSHEIGHT * SCALE - 5) {
                 // note靠近下边缘，在上一列的上边缘再画一个
-                if (params.showDistance) this.fullCatchObjects[_obj.index].draw2({time: _obj.time, type: _obj.type, x: _obj.x - (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: 0, col: _obj.col - 1}, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, this.fullCatchObjects[_obj.index].XDistToNext);
-                else this.fullCatchObjects[_obj.index].draw2({time: _obj.time, type: _obj.type, x: _obj.x - (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: 0, col: _obj.col - 1}, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
+                if (params.showDistance) this.fullCatchObjects[_obj.index].draw2({ time: _obj.time, type: _obj.type, x: _obj.x - (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: 0, col: _obj.col - 1 }, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, this.fullCatchObjects[_obj.index].XDistToNext);
+                else this.fullCatchObjects[_obj.index].draw2({ time: _obj.time, type: _obj.type, x: _obj.x - (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: 0, col: _obj.col - 1 }, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
             }
             else if (_obj.y < 5) {
                 // note靠近上边缘，在下一列的下边缘再画一个
-                if (params.showDistance) this.fullCatchObjects[_obj.index].draw2({time: _obj.time, type: _obj.type, x: _obj.x + (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: SCREENSHEIGHT * SCALE, col: _obj.col + 1}, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT,  this.fullCatchObjects[_obj.index].XDistToNext);
-                else this.fullCatchObjects[_obj.index].draw2({time: _obj.time, type: _obj.type, x: _obj.x + (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: SCREENSHEIGHT * SCALE, col: _obj.col + 1}, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
+                if (params.showDistance) this.fullCatchObjects[_obj.index].draw2({ time: _obj.time, type: _obj.type, x: _obj.x + (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: SCREENSHEIGHT * SCALE, col: _obj.col + 1 }, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, this.fullCatchObjects[_obj.index].XDistToNext);
+                else this.fullCatchObjects[_obj.index].draw2({ time: _obj.time, type: _obj.type, x: _obj.x + (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: SCREENSHEIGHT * SCALE, col: _obj.col + 1 }, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
             }
         });
     });

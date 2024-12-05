@@ -75,7 +75,7 @@ PalpableCatchHitObject.prototype.drawCombo2 = function (position, SCALE, combo, 
     // 用一块黑色遮挡
     ctx.save();
     ctx.fillStyle = "black";
-    ctx.fillRect(position.x + this.radius * SCALE * 2, position.y - 8, 40, 14);
+    ctx.fillRect(position.x + this.radius * SCALE * 2, position.y - 8, (combo.toString().length + 1) * 8, 14);
     ctx.restore();
 
     ctx.save();
