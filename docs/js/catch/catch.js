@@ -685,14 +685,16 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
     extraBarTimes.map((_barTime) => {
         let _objs = objs.filter((obj) => Math.abs(obj.time - _barTime * 1000) < EDGE_OFFSET);
         _objs.map((_obj) => {
+            let _dist = this.fullCatchObjects[_obj.index].XDistToNext;
+            if (_dist < params.distanceStart || _dist > params.distanceEnd) _dist = null;
             if (_obj.y > SCREENSHEIGHT * SCALE - 5) {
                 // note靠近下边缘，在上一列的上边缘再画一个
-                if (params.showDistance) this.fullCatchObjects[_obj.index].draw2({ time: _obj.time, type: _obj.type, x: _obj.x - (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: 0, col: _obj.col - 1 }, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, this.fullCatchObjects[_obj.index].XDistToNext);
+                if (params.showDistance) this.fullCatchObjects[_obj.index].draw2({ time: _obj.time, type: _obj.type, x: _obj.x - (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: 0, col: _obj.col - 1 }, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, _dist);
                 else this.fullCatchObjects[_obj.index].draw2({ time: _obj.time, type: _obj.type, x: _obj.x - (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: 0, col: _obj.col - 1 }, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
             }
             else if (_obj.y < 5) {
                 // note靠近上边缘，在下一列的下边缘再画一个
-                if (params.showDistance) this.fullCatchObjects[_obj.index].draw2({ time: _obj.time, type: _obj.type, x: _obj.x + (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: SCREENSHEIGHT * SCALE, col: _obj.col + 1 }, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, this.fullCatchObjects[_obj.index].XDistToNext);
+                if (params.showDistance) this.fullCatchObjects[_obj.index].draw2({ time: _obj.time, type: _obj.type, x: _obj.x + (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: SCREENSHEIGHT * SCALE, col: _obj.col + 1 }, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, _dist);
                 else this.fullCatchObjects[_obj.index].draw2({ time: _obj.time, type: _obj.type, x: _obj.x + (Beatmap.WIDTH * SCALE + 2 * COLMARGIN), y: SCREENSHEIGHT * SCALE, col: _obj.col + 1 }, SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT);
             }
         });
