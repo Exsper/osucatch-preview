@@ -264,9 +264,21 @@ function Catch(osu, mods) {
         let timeToNext = nextObject.time - currentObject.time - 1000 / 60 / 4; // 1/4th of a frame of grace time, taken from osu-stable
         let distanceToNext = Math.abs(nextObject.x - currentObject.x) - (lastDirection == thisDirection ? lastExcess : this.halfCatcherWidth);
         let nextTimingPoint = this.timingPointAt(nextObject.time);
-        currentObject.XDistToNext = Math.abs(nextObject.x - currentObject.x) / (this.SliderMultiplier * 100) / ((nextObject.time - currentObject.time) / nextTimingPoint.beatLength);
-        if (currentObject.XDistToNext > 0.01) currentObject.XDistToNext = (currentObject.XDistToNext !== Infinity) ? parseFloat(currentObject.XDistToNext.toFixed(2)) : null;
-        else currentObject.XDistToNext = null;
+        // 与editor相同
+        currentObject.XDistToNext[0] = Math.abs(nextObject.x - currentObject.x) / (this.SliderMultiplier * 100) / ((nextObject.time - currentObject.time) / nextTimingPoint.beatLength);
+        if (currentObject.XDistToNext[0] > 0.01) {
+            currentObject.XDistToNext[0] = (currentObject.XDistToNext[0] !== Infinity) ? parseFloat(currentObject.XDistToNext[0].toFixed(2)) : null;
+            // 排除SVM（绿线）影响
+            currentObject.XDistToNext[1] = currentObject.XDistToNext[0] * nextTimingPoint.sliderVelocity;
+            currentObject.XDistToNext[1] = (currentObject.XDistToNext[1] !== Infinity) ? parseFloat(currentObject.XDistToNext[1].toFixed(2)) : null;
+            // 排除SVM和BaseSV影响
+            //currentObject.XDistToNext[2] = currentObject.XDistToNext[1] * this.SliderMultiplier;
+            currentObject.XDistToNext[2] = Math.abs(nextObject.x - currentObject.x) / (timeToNext * this.BASE_WALK_SPEED);
+            currentObject.XDistToNext[2] = (currentObject.XDistToNext[2] !== Infinity) ? parseFloat(currentObject.XDistToNext[2].toFixed(2)) : null;
+        }
+        else {
+            currentObject.XDistToNext = [null, null, null];
+        }
         let distanceToHyper = timeToNext * this.BASE_DASH_SPEED - distanceToNext;
 
         if (distanceToHyper < 0) {
@@ -345,7 +357,7 @@ Catch.prototype.draw = function (time, ctx) {
 /**
  * @param {number} SCALE 缩放大小（0.2=缩放为1/5）
  * @param {number} SPEED 播放速度 DT=1.5 HT=0.75 在ctb不影响谱面，只影响时间和BPM标注
- * @param {{showDistance: boolean, distanceStart: number, distanceEnd: number}} params 其他参数
+ * @param {{showDistance: boolean, distanceStart: number, distanceEnd: number, distanceType: number}} params 其他参数
  */
 Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
     // 初定每一列20个屏幕大小，不够换列
@@ -642,7 +654,7 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
             ctx2.textAlign = "start";
             ctx2.fillText((timingLines[i].bpm * SPEED).toFixed(0), real_x_1 - 4, real_y - 10);
         }
-        else if (timingLines[i].sv) {
+        else if (timingLines[i].sv && params.distanceType <= 0) {
             ctx2.fillStyle = 'lightgreen';
             ctx2.font = "normal 16px 'Segoe UI'";
             ctx2.textBaseline = "middle";
@@ -669,8 +681,9 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
         // 借用combo位显示距离，省事！
         if (params.showDistance) {
             if (objs[i].type === "Fruit" || objs[i].type === "Droplet") {
-                if (this.fullCatchObjects[i].XDistToNext >= params.distanceStart && this.fullCatchObjects[i].XDistToNext <= params.distanceEnd)
-                    showCombo = this.fullCatchObjects[i].XDistToNext;
+                let distanceType = params.distanceType;
+                if (this.fullCatchObjects[i].XDistToNext[distanceType] >= params.distanceStart && this.fullCatchObjects[i].XDistToNext[distanceType] <= params.distanceEnd)
+                    showCombo = this.fullCatchObjects[i].XDistToNext[distanceType];
             }
         }
 
@@ -685,7 +698,8 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
     extraBarTimes.map((_barTime) => {
         let _objs = objs.filter((obj) => Math.abs(obj.time - _barTime * 1000) < EDGE_OFFSET);
         _objs.map((_obj) => {
-            let _dist = this.fullCatchObjects[_obj.index].XDistToNext;
+            let distanceType = params.distanceType;
+            let _dist = this.fullCatchObjects[_obj.index].XDistToNext[distanceType];
             if (_dist < params.distanceStart || _dist > params.distanceEnd) _dist = null;
             if (_obj.y > SCREENSHEIGHT * SCALE - 5) {
                 // note靠近下边缘，在上一列的上边缘再画一个

@@ -25,9 +25,15 @@
             <option value="HT">HT</option>
         </select>
         <input type="checkbox" id="showdistance" /> <label for="showdistance">标注到下个水果的X距离</label>
-        <span> 范围： </span> <input type="number" id="distancestart" value="0" style="width: 40px;" />
+        <span>距离类型: </span>
+        <select size="1" id="distancetype" disabled>
+            <option value="0" selected>与editor相同</option>
+            <option value="1">排除SVM（绿线）影响</option>
+            <option value="2">排除SVM和BaseSV影响</option>
+        </select>
+        <span> 范围： </span> <input type="number" id="distancestart" value="0" style="width: 40px;" disabled />
         <span> - </span>
-        <input type="number" id="distanceend" value="100" style="width: 40px;" />
+        <input type="number" id="distanceend" value="100" style="width: 40px;" disabled />
         <span id="msg"></span>
     </div>
     <img id="img"></img>
@@ -87,10 +93,12 @@
                 let showDistance = document.getElementById("showdistance");
                 let distanceStart = document.getElementById("distancestart");
                 let distanceEnd = document.getElementById("distanceend");
+                let distanceType = document.getElementById("distancetype");
                 if (showDistance.checked) {
                     params.showDistance = true;
                     params.distanceStart = distanceStart.value || 0;
                     params.distanceEnd = distanceEnd.value || Infinity;
+                    params.distanceType = distanceType.value || 0;
                 }
 
                 var self = this;
@@ -153,8 +161,8 @@
             if (currentBeatmap !== null) createImg(currentBeatmap);
         }
 
-        let showDistance = document.getElementById("showdistance");
-        showDistance.onchange = function () {
+        let distanceType = document.getElementById("distancetype");
+        distanceType.onchange = function () {
             if (currentBeatmap !== null) createImg(currentBeatmap);
         }
 
@@ -164,6 +172,21 @@
         }
         let distanceEnd = document.getElementById("distanceend");
         distanceEnd.onchange = function () {
+            if (currentBeatmap !== null) createImg(currentBeatmap);
+        }
+
+        let showDistance = document.getElementById("showdistance");
+        showDistance.onchange = function () {
+            if (showDistance.checked) {
+                distanceType.disabled = false;
+                distanceStart.disabled = false;
+                distanceEnd.disabled = false;
+            }
+            else {
+                distanceType.disabled = true;
+                distanceStart.disabled = true;
+                distanceEnd.disabled = true;
+            }
             if (currentBeatmap !== null) createImg(currentBeatmap);
         }
 
