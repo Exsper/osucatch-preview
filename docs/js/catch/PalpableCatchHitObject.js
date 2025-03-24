@@ -6,6 +6,7 @@ function PalpableCatchHitObject(data, beatmap) {
     this.color = data.color;
     this.radius = data.radius;
     this.hyperDash = false;
+    this.edge = false;
     this.XDistToNext = [1, 1, 1];
     this.hitSound = data.hitSound || "0";
 }

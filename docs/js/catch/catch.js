@@ -290,6 +290,8 @@ function Catch(osu, mods) {
         else {
             lastExcess = Math.clamp(distanceToHyper, 0, this.halfCatcherWidth);
             //this.whiteDashes.push({ score: distanceToHyper, time: currentObject.time });
+            // 标注再加10像素就变红果的白果跳
+            if (distanceToHyper < 10) currentObject.edge = true;
         }
 
         lastDirection = thisDirection;
@@ -696,6 +698,18 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
 
         else if (combo > lastCombo && combo > 0 && combo % comboSplit === 0) showCombo = combo;
         this.fullCatchObjects[i].draw2(objs[i], SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, showCombo);
+
+        // 标注edge
+        if (this.fullCatchObjects[i].edge && i < this.fullCatchObjects.length - 1) {
+            ctx2.save();
+            ctx2.beginPath();
+            ctx2.moveTo(objs[i].x + BORDER_WIDTH, objs[i].y + BORDER_HEIGHT);
+            ctx2.lineTo(objs[i+1].x + BORDER_WIDTH, objs[i+1].y + BORDER_HEIGHT);
+            ctx2.strokeStyle = '#fff';
+            ctx2.lineWidth = 1;
+            ctx2.stroke();
+        }
+
         lastCombo = combo;
     }
 
