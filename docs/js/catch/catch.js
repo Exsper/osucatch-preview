@@ -696,7 +696,7 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
             }
         }
 
-        else if (combo > lastCombo && combo > 0 && combo % comboSplit === 0) showCombo = combo;
+        else if (combo > lastCombo && combo > 0 && (combo % comboSplit === 0 || this.fullCatchObjects[i].edge)) showCombo = combo;
         this.fullCatchObjects[i].draw2(objs[i], SCALE, ctx2, BORDER_WIDTH, BORDER_HEIGHT, showCombo);
 
         // 标注edge
