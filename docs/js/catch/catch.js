@@ -703,10 +703,35 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
         if (this.fullCatchObjects[i].edge && i < this.fullCatchObjects.length - 1) {
             ctx2.save();
             ctx2.beginPath();
-            ctx2.moveTo(objs[i].x + BORDER_WIDTH, objs[i].y + BORDER_HEIGHT);
-            ctx2.lineTo(objs[i+1].x + BORDER_WIDTH, objs[i+1].y + BORDER_HEIGHT);
+            let _x1 = objs[i].x + BORDER_WIDTH;
+            let _y1 = objs[i].y + BORDER_HEIGHT;
+            let _x2 = objs[i+1].x + BORDER_WIDTH;
+            let _y2 = objs[i+1].y + BORDER_HEIGHT;
+            if (_y1 > _y2) {
+                ctx2.moveTo(_x1, _y1);
+                ctx2.lineTo(_x2, _y2);
+            }
+            // 不在同一轨道上
+            else if (_y1 < _y2) {
+                let line_end_x2 = _x2 - Beatmap.WIDTH * SCALE - 2 * COLMARGIN;
+                let line_end_y2 = _y2 + 2 * BORDER_HEIGHT - height;
+                let line_middle_y2 = BORDER_HEIGHT;
+                let line_middle_x2 = (line_end_x2 - _x1) * (line_end_y2 - line_middle_y2) / (_y1 - line_end_y2) + line_end_x2;
+                if (line_middle_x2) {
+                    ctx2.moveTo(_x1, _y1);
+                    ctx2.lineTo(line_middle_x2, line_middle_y2);
+                }
+                let line_start_x1 = _x1 + Beatmap.WIDTH * SCALE + 2 * COLMARGIN;
+                let line_start_y1 = _y1 + height - 2 * BORDER_HEIGHT;
+                let line_middle_y1 = height - BORDER_HEIGHT;
+                let line_middle_x1 = (_x2 - line_start_x1) * (_y2 - line_middle_y1) / (line_start_y1 - _y2) + _x2;
+                if (line_middle_x1) {
+                    ctx2.moveTo(line_middle_x1, line_middle_y1);
+                    ctx2.lineTo(_x2, _y2);
+                }
+            }
             ctx2.strokeStyle = '#fff';
-            ctx2.lineWidth = 1;
+            ctx2.lineWidth = 3;
             ctx2.stroke();
         }
 
