@@ -290,8 +290,8 @@ function Catch(osu, mods) {
         else {
             lastExcess = Math.clamp(distanceToHyper, 0, this.halfCatcherWidth);
             //this.whiteDashes.push({ score: distanceToHyper, time: currentObject.time });
-            // 标注再加23像素就变红果的白果跳
-            if (distanceToNext > 2 * this.halfCatcherWidth && distanceToHyper < 23) currentObject.edge = true;
+            // 标注再加20像素就变红果的白果跳
+            if (distanceToNext > 2 * this.halfCatcherWidth && distanceToHyper < 20) currentObject.edge = true;
         }
 
         lastDirection = thisDirection;
