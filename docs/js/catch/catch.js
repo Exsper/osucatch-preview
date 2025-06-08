@@ -297,6 +297,15 @@ function Catch(osu, mods) {
         lastDirection = thisDirection;
     }
 
+    // spin后第一个note距离小于200ms时加标注
+    for (let i = 0; i < this.fullCatchObjects.length - 1; i++) {
+        var currentObject = this.fullCatchObjects[i];
+        var nextObject = this.fullCatchObjects[i + 1];
+        if (currentObject.type !== "Banana") continue;
+        if (nextObject.type === "Banana") continue;
+        if (nextObject.time - currentObject.time <= 200) currentObject.edge = true;
+    }
+
     //this.whiteDashes.sort((a, b) => a.score - b.score);
     //this.hyperDashes.sort((a, b) => a.score - b.score);
 
