@@ -369,7 +369,7 @@ Catch.prototype.draw = function (time, ctx) {
 /**
  * @param {number} SCALE 缩放大小（0.2=缩放为1/5）
  * @param {number} SPEED 播放速度 DT=1.5 HT=0.75 在ctb不影响谱面，只影响时间和BPM标注
- * @param {{showLabelType: number, distanceStart: number, distanceEnd: number, distanceType: number}} params 其他参数
+ * @param {{showLabelType: number, distanceStart: number, distanceEnd: number, distanceType: number, showSpline: boolean}} params 其他参数
  */
 Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
     // 初定每一列20个屏幕大小，不够换列
@@ -676,10 +676,50 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
         ctx2.restore();
     }
 
+    if (params.showSpline) {
+        // 画三次拟合曲线
+        let groupedObjs = objs.reduce((acc, obj) => {
+            if (obj.type === "Fruit" || obj.type === "Droplet") {
+                const groupKey = obj["col"];
+                (acc[groupKey] = acc[groupKey] || []).push(obj);
+            }
+            return acc;
+        }, {});
+        let splines = Object.keys(groupedObjs).map((groupKey) => {
+            let _objs = groupedObjs[groupKey];
+            let _points = _objs.map((_obj) => ({ x: _obj.x, t: _obj.y }));
+            return new CubicSpline(_points);
+        });
+        splines.map((spline, index) => {
+            const tMin = Math.min(...spline.points.map(p => p.t));
+            const tMax = Math.max(...spline.points.map(p => p.t));
+            // 绘制曲线
+            ctx2.beginPath();
+            ctx2.strokeStyle = '#aaa';
+            ctx2.lineWidth = 2;
+            // 在最小t到最大t之间生成足够多的点
+            const step = 1;
+            for (let t = tMin; t <= tMax; t += step) {
+                let x = spline.interpolate(t);
+                if (x < Beatmap.WIDTH * index * SCALE + COLMARGIN * (2 * index + 1)) x = Beatmap.WIDTH * index * SCALE + COLMARGIN * (2 * index + 1);
+                else if (x > Beatmap.WIDTH * (index + 1) * SCALE + COLMARGIN * (2 * index + 1)) x = Beatmap.WIDTH * (index + 1) * SCALE + COLMARGIN * (2 * index + 1);
+                x += BORDER_WIDTH;
+                const y = t + BORDER_HEIGHT;
+                if (t === tMin) {
+                    ctx2.moveTo(x, y);
+                } else {
+                    ctx2.lineTo(x, y);
+                }
+            }
+            ctx2.stroke();
+        });
+    }
+
+
     let combo = 0;
     let lastCombo = 0;
     let comboSplit = 20;
-    // 按总物件数/时间控制密度
+    // 按总物件数/时间控制combo显示密度
     let totalTime = this.fullCatchObjects[this.fullCatchObjects.length - 1].time - this.fullCatchObjects[0].time;
     if (this.fullCatchObjects.length * 1000 / totalTime > 2) comboSplit = Math.ceil(this.fullCatchObjects.length * 1000 / totalTime) * 10;
     // 按0.5*(10^(位数-1&&最小为2))修约  60=>50  270=>250  820=>800  1434=>1500  1834=>2000
@@ -715,8 +755,8 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
             ctx2.beginPath();
             let _x1 = objs[i].x + BORDER_WIDTH;
             let _y1 = objs[i].y + BORDER_HEIGHT;
-            let _x2 = objs[i+1].x + BORDER_WIDTH;
-            let _y2 = objs[i+1].y + BORDER_HEIGHT;
+            let _x2 = objs[i + 1].x + BORDER_WIDTH;
+            let _y2 = objs[i + 1].y + BORDER_HEIGHT;
             if (_y1 > _y2) {
                 ctx2.moveTo(_x1, _y1);
                 ctx2.lineTo(_x2, _y2);
@@ -810,3 +850,92 @@ Catch.prototype.processProgressBar = function (ctx, totalTime) {
         }
     }
 };
+
+
+function CubicSpline(points) {
+    this.points = points.slice().sort((a, b) => a.t - b.t);
+    this.n = this.points.length;
+    this.x = this.points.map(p => p.x);
+    this.t = this.points.map(p => p.t);
+    this.coeffs = this.calculateCoefficients();
+}
+
+CubicSpline.prototype.calculateCoefficients = function () {
+    const n = this.n;
+    const t = this.t;
+    const x = this.x;
+
+    if (n < 2) return [];
+    if (n === 2) { // 两点之间线性插值
+        const slope = (x[1] - x[0]) / (t[1] - t[0]);
+        return [{ a: x[0], b: slope, c: 0, d: 0 }];
+    }
+
+    // 初始化数组
+    const h = new Array(n - 1);
+    const alpha = new Array(n - 1);
+    const l = new Array(n).fill(1);
+    const mu = new Array(n).fill(0);
+    const z = new Array(n).fill(0);
+    const c = new Array(n).fill(0);
+    const b = new Array(n - 1).fill(0);
+    const d = new Array(n - 1).fill(0);
+
+    // 计算步长h和中间值alpha
+    for (let i = 0; i < n - 1; i++) {
+        h[i] = t[i + 1] - t[i];
+        if (i > 0) {
+            alpha[i] = 3 * ((x[i + 1] - x[i]) / h[i] - (x[i] - x[i - 1]) / h[i - 1]);
+        }
+    }
+
+    // 解三对角矩阵（Thomas算法）
+    for (let i = 1; i < n - 1; i++) {
+        l[i] = 2 * (t[i + 1] - t[i - 1]) - h[i - 1] * mu[i - 1];
+        mu[i] = h[i] / l[i];
+        z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i];
+    }
+
+    // 回代计算c系数
+    l[n - 1] = 1;
+    for (let j = n - 2; j >= 0; j--) {
+        c[j] = z[j] - mu[j] * c[j + 1];
+        b[j] = (x[j + 1] - x[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
+        d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
+    }
+
+    // 收集所有系数
+    const coeffs = [];
+    for (let i = 0; i < n - 1; i++) {
+        coeffs.push({
+            a: x[i],
+            b: b[i],
+            c: c[i],
+            d: d[i],
+            t0: t[i],
+            t1: t[i + 1]
+        });
+    }
+    return coeffs;
+}
+
+CubicSpline.prototype.interpolate = function (tVal) {
+    if (this.n === 0) return 0;
+    if (this.n === 1) return this.x[0];
+
+    // 处理边界值
+    if (tVal <= this.t[0]) return this.x[0];
+    if (tVal >= this.t[this.n - 1]) return this.x[this.n - 1];
+
+    // 找到对应的区间
+    let i = 0;
+    while (tVal > this.t[i + 1] && i < this.n - 2) i++;
+
+    // 应用三次多项式
+    const coeff = this.coeffs[i];
+    const dt = tVal - coeff.t0;
+    return coeff.a +
+        coeff.b * dt +
+        coeff.c * dt * dt +
+        coeff.d * dt * dt * dt;
+}

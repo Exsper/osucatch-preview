@@ -25,6 +25,7 @@
             <option value="HT">HT</option>
         </select>
         <input type="checkbox" id="showhitsound" /> <label for="showhitsound" id="showhitsoundLabel">标注音效</label>
+        <input type="checkbox" id="showspline" /> <label for="showspline" id="showsplineLabel">标注拟合曲线</label>
         <input type="checkbox" id="showdistance" /> <label for="showdistance" id="showdistanceLabel">标注到下个水果的X距离</label>
         <span id="distancetypeLabel">距离类型: </span>
         <select size="1" id="distancetype" disabled>
@@ -35,7 +36,7 @@
         <span id="distanceRangeLabel"> 范围： </span> <input type="number" id="distancestart" value="0" style="width: 40px;" disabled />
         <span> - </span>
         <input type="number" id="distanceend" value="100" style="width: 40px;" disabled />
-
+        <br>
         <span>Language: </span>
         <select size="1" id="lang">
             <option value="0" selected>default</option>
@@ -100,6 +101,7 @@
 
                 let params = {};
                 let showHitsound = document.getElementById("showhitsound");
+                let showSpline = document.getElementById("showspline");
                 let showDistance = document.getElementById("showdistance");
                 let distanceStart = document.getElementById("distancestart");
                 let distanceEnd = document.getElementById("distanceend");
@@ -116,6 +118,7 @@
                 else {
                     params.showLabelType = 0;
                 }
+                if (showSpline.checked) params.showSpline = true;
 
                 var self = this;
                 try {
@@ -224,6 +227,11 @@
             if (currentBeatmap !== null) createImg(currentBeatmap);
         }
 
+        let showSpline = document.getElementById("showspline");
+        showSpline.onchange = function () {
+            if (currentBeatmap !== null) createImg(currentBeatmap);
+        }
+
         document.ondragover = function (e) {
             e.preventDefault();
         };
@@ -245,6 +253,7 @@
             document.title = "ctb图片预览 导入本地文件";
             document.getElementById("inputLabel").innerText = "导入谱面文件: ";
             document.getElementById("showhitsoundLabel").innerText = "标注音效";
+            document.getElementById("showsplineLabel").innerText = "标注拟合曲线";
             document.getElementById("showdistanceLabel").innerText = "标注到下个水果的X距离";
             document.getElementById("distancetypeLabel").innerText = "距离类型: ";
             document.getElementById("sameWithEditorLabel").innerText = "与editor相同";
@@ -257,6 +266,7 @@
             document.title = "ctb2pic | input .osu file";
             document.getElementById("inputLabel").innerText = "Input a .osu file: ";
             document.getElementById("showhitsoundLabel").innerText = "Show hitsound. ";
+            document.getElementById("showsplineLabel").innerText = "Show cubic spline curve";
             document.getElementById("showdistanceLabel").innerText = "Show distance to the NEXT note. ";
             document.getElementById("distancetypeLabel").innerText = "Distance Type: ";
             document.getElementById("sameWithEditorLabel").innerText = "Same with editor";
