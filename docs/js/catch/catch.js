@@ -630,6 +630,7 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
     }
 
     // 画timing线
+    let SVShowed = false;
     for (let i = 0; i < timingLines.length; i++) {
         let real_x_1 = 0;
         let real_x_2 = Beatmap.WIDTH;
@@ -665,6 +666,17 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
             ctx2.textBaseline = "middle";
             ctx2.textAlign = "start";
             ctx2.fillText((timingLines[i].bpm * SPEED).toFixed(0), real_x_1 - 4, real_y - 10);
+
+            // 给第一个红线标记SV
+            if (!SVShowed) {
+                SVShowed = true;
+                ctx2.fillStyle = 'red';
+                ctx2.font = "normal 16px 'Segoe UI'";
+                ctx2.textBaseline = "middle";
+                ctx2.textAlign = "start";
+                ctx2.fillText("SV=" + this.SliderMultiplier, real_x_1 - 4, real_y + 10);
+            }
+
         }
         else if (timingLines[i].sv && params.distanceType <= 0) {
             ctx2.fillStyle = 'lightgreen';
