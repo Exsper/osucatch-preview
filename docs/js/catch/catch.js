@@ -697,24 +697,27 @@ Catch.prototype.draw2 = function (SCALE, SPEED = 1, params = {}) {
             }
             return acc;
         }, {});
-        let splines = Object.keys(groupedObjs).map((groupKey) => {
+        let splines = Object.keys(groupedObjs).reduce((acc, groupKey) => {
             let _objs = groupedObjs[groupKey];
             let _points = _objs.map((_obj) => ({ x: _obj.x, t: _obj.y }));
-            return new CubicSpline(_points);
-        });
-        splines.map((spline, index) => {
-            const tMin = Math.min(...spline.points.map(p => p.t));
-            const tMax = Math.max(...spline.points.map(p => p.t));
+            acc[groupKey]= new CubicSpline(_points);
+            return acc;
+        }, {});
+        Object.keys(groupedObjs).map((groupKey) => {
+            if (!splines[groupKey].points || splines[groupKey].points.length <= 0) return;
+            const tMin = Math.min(...splines[groupKey].points.map(p => p.t));
+            const tMax = Math.max(...splines[groupKey].points.map(p => p.t));
             // 绘制曲线
             ctx2.beginPath();
             ctx2.strokeStyle = '#aaa';
             ctx2.lineWidth = 2;
             // 在最小t到最大t之间生成足够多的点
             const step = 1;
+            const colIndex = groupKey - 1;
             for (let t = tMin; t <= tMax; t += step) {
-                let x = spline.interpolate(t);
-                if (x < Beatmap.WIDTH * index * SCALE + COLMARGIN * (2 * index + 1)) x = Beatmap.WIDTH * index * SCALE + COLMARGIN * (2 * index + 1);
-                else if (x > Beatmap.WIDTH * (index + 1) * SCALE + COLMARGIN * (2 * index + 1)) x = Beatmap.WIDTH * (index + 1) * SCALE + COLMARGIN * (2 * index + 1);
+                let x = splines[groupKey].interpolate(t);
+                if (x < Beatmap.WIDTH * colIndex * SCALE + COLMARGIN * (2 * colIndex + 1)) x = Beatmap.WIDTH * colIndex * SCALE + COLMARGIN * (2 * colIndex + 1);
+                else if (x > Beatmap.WIDTH * (colIndex + 1) * SCALE + COLMARGIN * (2 * colIndex + 1)) x = Beatmap.WIDTH * (colIndex + 1) * SCALE + COLMARGIN * (2 * colIndex + 1);
                 x += BORDER_WIDTH;
                 const y = t + BORDER_HEIGHT;
                 if (t === tMin) {
